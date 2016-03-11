@@ -20,30 +20,21 @@ checkLinesLength <- function(x) {
 }
 
 # Q4
-nLove <- 0
-nHate <- 0
-
 conn <- file(file3,open="r")
 lines <- readLines(conn)
-for (i in 1:length(lines)){
-  if(grepl("love", lines[i], ignore.case = FALSE)) 
-    nLove <- nLove + 1
-  
-  if(grepl("hate", lines[i], ignore.case = FALSE)) 
-    nHate <- nHate + 1  
-}
 close(conn)
 
-nLove/nHate
+loveDF <- subset(lines, grepl('love',lines))
+hateDF <- subset(lines, grepl('hate',lines))
+
+length(loveDF)/length(hateDF)
+
 
 #Q6
 nSent <- 0
 conn <- file(file3,open="r")
 lines <- readLines(conn)
-for (i in 1:length(lines)){
-  if(grepl("A computer once beat me at chess, but it was no match for me at kickboxing", lines[i], ignore.case = FALSE)) 
-    nSent <- nSent + 1
-  
-}
 close(conn)
 
+matchedDF <- subset(lines, grepl('A computer once beat me at chess, but it was no match for me at kickboxing',lines))
+matchedDF
