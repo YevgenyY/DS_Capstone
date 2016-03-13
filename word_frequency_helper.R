@@ -38,3 +38,5 @@ freqNews <- sort(tmp, decreasing = TRUE)
 tdm.twit <- getTDM(twitter.ru, 2000)
 tmp <- apply(tdm.twit,1,sum)
 freqTwit <- sort(tmp, decreasing = TRUE)
+
+# TODO: check this http://hack-r.com/n-gram-wordclouds-in-r/
