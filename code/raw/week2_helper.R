@@ -21,9 +21,10 @@ my.inspect <- function(x) {
 size <- 100000
 conn <- file(blog.en,open="r")
 #lines <- readLines(conn, n=size)
-lines <- readLines(conn)
+lines <- readLines(conn, encoding="UTF-8")
 close(conn)
 
+# Get random strings from dataset
 rowNums <- round(runif(size, min=1, max=length(lines)),0)
 raw <- c(lines[1])
 for(i in rowNums) {
@@ -60,6 +61,7 @@ txt.corpus <- tm_map(txt.corpus, stripWhitespace)
 
 # Analyze the text
 tdm <- TermDocumentMatrix(txt.corpus)
+termsSorted <- sort(apply(tdm, 1, sum), decreasing=TRUE)
 #dtm <- DocumentTermMatrix(txt.corpus)
 #inspect(tdm)
 
@@ -73,14 +75,9 @@ termsSorted <- sort(apply(tdm.999,1,sum), decreasing=TRUE)
 findFreqTerms(x=tdm.common.999, lowfreq = 5000, highfreq = Inf)
 
 ######### N-Gramm #########################
-# library("RWeka")
-library(SnowballC)
-# BigramTokenizer ####
-# BigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
-# BigramTokenizer <- function(x) {RWeka::NGramTokenizer(x, RWeka::Weka_control(min = 2, max = 2))}
-BigramTokenizer <- function(x, n=2) return(rownames(as.data.frame(unclass(textcnt(x,method="string",n=n)))))
-tokenize_ngrams <- function(x, n=3) return(rownames(as.data.frame(unclass(textcnt(x,method="string",n=n)))))
-
-tdm.2gram <- TermDocumentMatrix(txt.corpus, control = list(tokenize = tokenize_ngrams))
-tdm.2gram <- TermDocumentMatrix(txt.corpus, control = list(tokenize = BigramTokenizer))
+library("RWeka")
+options(java.parameters = "- Xmx1024m")
+delim <- " "
+BiGram <- NGramTokenizer(raw, Weka_control(min=2,max=2, delimiters = delim))
+TriGram <- NGramTokenizer(txt.corpus, Weka_control(min=3,max=3, delimiters = delim))
 
