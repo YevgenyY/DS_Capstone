@@ -18,26 +18,36 @@ my.inspect <- function(x) {
 }
 
 # Load file line by line
-size <- 10
+size <- 100000
 conn <- file(blog.en,open="r")
-raw <- readLines(conn, n=size)
+#lines <- readLines(conn, n=size)
+lines <- readLines(conn)
 close(conn)
 
-tmp <- raw[1:size]
-tmp <- tmp[grep("[a-zA-Z0-9 ]+", tmp)]
-tmp <- iconv(tmp,to="latin1")
+rowNums <- round(runif(size, min=1, max=length(lines)),0)
+raw <- c(lines[1])
+for(i in rowNums) {
+  raw <- c(raw, lines[i])
+}
 
-txt <- VectorSource(tmp)
-txt.corpus <- Corpus(txt)
-my.inspect(txt.corpus)
+# remove punctuation, numbers and tolower it
+raw <- gsub("[^[:alnum:][:space:]']", ' ', raw)
+raw <- gsub('[[:digit:]]+', ' ', raw)
+raw <- tolower(raw)
+
+
+raw <- iconv(raw, to='ASCII//TRANSLIT')
+txt <- VectorSource(raw)
+txt.corpus <- Corpus(txt, readerControl = list(language = "lat"))
+rm(txt)
 
 # Load file using tm
 #blog <- system.file("data/final/en_US/en_US.blogs.txt", package = "tm")
 #txt.corpus <- Corpus(DirSource(dirEN), readerControl = list(reader=readPlain, language="la", load=TRUE))
 
-txt.corpus <- tm_map(txt.corpus, content_transformer(tolower))
-txt.corpus <- tm_map(txt.corpus, removePunctuation)
-txt.corpus <- tm_map(txt.corpus, removeNumbers)
+#txt.corpus <- tm_map(txt.corpus, content_transformer(tolower))
+#txt.corpus <- tm_map(txt.corpus, removePunctuation)
+#txt.corpus <- tm_map(txt.corpus, removeNumbers)
 txt.corpus <- tm_map(txt.corpus, removeWords, stopwords("english"))
 
 # Stem documents
@@ -47,25 +57,20 @@ txt.corpus <- tm_map(txt.corpus, removeWords, stopwords("english"))
 #inspect(txt.corpus)
 
 txt.corpus <- tm_map(txt.corpus, stripWhitespace)
-my.inspect(txt.corpus)
 
 # Analyze the text
 tdm <- TermDocumentMatrix(txt.corpus)
-dtm <- DocumentTermMatrix(txt.corpus)
-inspect(tdm)
+#dtm <- DocumentTermMatrix(txt.corpus)
+#inspect(tdm)
 
-# Clear tdm
-#rowTotals <- apply(tdm , 1, sum) #Find the sum of words in each Document
-#tdm   <- tdm[rowTotals > 0, ]           #remove all docs without words
-
+# Remove sparse terms (which occur very infrequently)
+tdm.999 <- removeSparseTerms(x=tdm, sparse = 0.999)
 # Find associated words
-findAssocs(x=tdm, term="afford", corlimit=0.6)
+findAssocs(x=tdm.999, term="abuse", corlimit=0.05)
+termsSorted <- sort(apply(tdm.999,1,sum), decreasing=TRUE)
 
-# remove sparse terms (which occur very infrequently)
-dtm.common.60 <- removeSparseTerms(x=dtm, sparse = 0.6)
-dtm.common.20 <- removeSparseTerms(x=dtm, sparse = 0.2)
 
-findFreqTerms(x=tdm, lowfreq = 50, highfreq = Inf)
+findFreqTerms(x=tdm.common.999, lowfreq = 5000, highfreq = Inf)
 
 ######### N-Gramm #########################
 # library("RWeka")
