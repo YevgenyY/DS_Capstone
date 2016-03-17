@@ -31,7 +31,7 @@ for(i in rowNums) {
   raw <- c(raw, lines[i])
 }
 
-# remove punctuation, numbers and tolower it
+# remove punctuation, numbers and tolower the content
 raw <- gsub("[^[:alnum:][:space:]']", ' ', raw)
 raw <- gsub('[[:digit:]]+', ' ', raw)
 raw <- tolower(raw)
@@ -76,7 +76,7 @@ findFreqTerms(x=tdm.common.999, lowfreq = 5000, highfreq = Inf)
 
 ######### N-Gramm #########################
 library("RWeka")
-options(java.parameters = "- Xmx1024m")
+options(java.parameters = "- Xmx8192m")
 delim <- " "
 BiGram <- NGramTokenizer(raw, Weka_control(min=2,max=2, delimiters = delim))
 TriGram <- NGramTokenizer(txt.corpus, Weka_control(min=3,max=3, delimiters = delim))
