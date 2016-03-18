@@ -5,7 +5,7 @@ options(java.parameters = "-Xmx24g")
 options(warn=-1)
 profanityWords <- read.csv(url("http://www.bannedwordlist.com/lists/swearWords.csv"))
 
-getBasicStat <- function(x) {
+getBasicStats <- function(x) {
   bytesMB <- 1024 * 1024
   conn <- file(x,open="r")
   raw <- readLines(conn)
@@ -14,21 +14,19 @@ getBasicStat <- function(x) {
   res <- file.info(x)$size / bytesMB
   res <- c(res, length(raw))
   res <- c(res, sum(sapply(gregexpr("\\W+", raw), length)))
-
+  
   names(res) <- c("file size", "number of lines", "number of words")  
-
+  
   return(res)
 }
 
-getTDM <- function(x,y,z, removeWords) {
-
-  # Load file line by line
-  sampleSize <- y
-  conn <- file(x,open="r")
+library(tm)
+getCorpus <- function(filename, sampleSize, profanityWords) {
+  conn <- file(filename,open="r")
   
+  lines <- iconv(readLines(conn), to = "utf-8")
   if (sampleSize != 0) {
-    lines <- readLines(conn, n=sampleSize)
-    # Get random strings from dataset
+    # Sample data with uniform distribution
     rowNums <- round(runif(sampleSize, min=1, max=length(lines)),0)
     raw <- c(lines[1])
     for(i in rowNums) {
@@ -36,13 +34,13 @@ getTDM <- function(x,y,z, removeWords) {
     }
     rm(lines)
   } else
-    raw <- readLines(conn)
-  
+    raw <- lines
   close(conn)
-
+  
   # remove punctuation, numbers and tolower the content
   raw <- gsub("[^[:alnum:][:space:]']", ' ', raw)
   raw <- gsub('[[:digit:]]+', ' ', raw)
+  raw <- gsub('[[:punct:]]+', '', raw)
   raw <- tolower(raw)
   
   # make a corpus
@@ -54,42 +52,71 @@ getTDM <- function(x,y,z, removeWords) {
   # Clean the corpus
   txt.corpus <- tm_map(txt.corpus, removeWords, stopwords("english"))
   txt.corpus <- tm_map(txt.corpus, removeWords, stopwords("russian"))
-  txt.corpus <- tm_map(txt.corpus, removeWords, removeWords)
+  
+  txt.corpus <- tm_map(txt.corpus, removeWords, profanityWords)
   txt.corpus <- tm_map(txt.corpus, stripWhitespace)
   
-  delim <- " "
-  ngram_size <- z
-  tdm <- NGramTokenizer(txt.corpus, Weka_control(min=ngram_size, max=ngram_size, delimiters = delim))
-  #tdm <- TermDocumentMatrix(txt.corpus)
+  return(txt.corpus)
+}
 
-  # Remove sparse terms (which occur very infrequently)
-  # tdm.999 <- removeSparseTerms(x=tdm, sparse = 0.999)
-  return(tdm)
-} 
+setwd("~/Coursera/DS_Capstone/")
+blog.en="data/final/en_US/en_US.blogs.txt"
+news.en="data/final/en_US/en_US.news.txt"
+twitter.en="data/final/en_US/en_US.twitter.txt"
+blog.ru="data/final/ru_RU/ru_RU.blogs.txt"
+news.ru="data/final/ru_RU/ru_RU.news.txt"
+twitter.ru="data/final/ru_RU/ru_RU.twitter.txt"
 
-tdm.en.blog <- getTDM(blog.en, 100000,1, removeWords)
-tmp <- apply(tdm.en.blog,1,sum)
-freqen.en.blog <- sort(tmp, decreasing = TRUE)
+profanityWords.en <- names(read.csv(url("http://www.bannedwordlist.com/lists/swearWords.csv")))
+profanityWords.ru <- names(read.csv("data/profanity_russian.txt"))
 
-tdm.en.news <- getTDM(news.en, 100000)
-tmp <- apply(tdm.en.news,1,sum)
-freq.en.news <- sort(tmp, decreasing = TRUE)
+txt.en.blog <- getCorpus(blog.en, 10000, profanityWords.en)
+txt.en.news <- getCorpus(news.en, 10000, profanityWords.en)
+txt.en.twit <- getCorpus(twitter.en, 10000, profanityWords.en)
+txt.ru.blog <- getCorpus(blog.ru, 10000, profanityWords.ru)
+txt.ru.news <- getCorpus(news.ru, 10000, profanityWords.ru)
+txt.ru.twit <- getCorpus(twitter.ru, 10000, profanityWords.ru)
 
-tdm.en.twit <- getTDM(twitter.en, 100000)
-tmp <- apply(tdm.en.twit,1,sum)
-freq.en.twit <- sort(tmp, decreasing = TRUE)
+txt.en <- c(txt.en.blog, txt.en.news, txt.en.twit)
+txt.ru <- c(txt.ru.blog, txt.ru.news, txt.ru.twit)
 
-tdm.ru.blog <- getTDM(blog.ru, 100000)
-tmp <- apply(tdm.ru.blog,1,sum)
-freq.ru.blog <- sort(tmp, decreasing = TRUE)
+# free memory
+rm(txt.en.blog, txt.en.news, txt.en.twit, txt.ru.blog, txt.ru.news, txt.ru.twit)
 
-tdm.ru.news <- getTDM(news.ru, 100000)
-tmp <- apply(tdm.ru.news,1,sum)
-freq.ru.news <- sort(tmp, decreasing = TRUE)
+library(slam)
+getFrequency <- function(x) {
+  tdm <- TermDocumentMatrix(x)
+  tdm.999 <- removeSparseTerms(tdm, sparse = 0.999)
+  rm(tdm)
+  
+  freq <- sort(row_sums(tdm.999), decreasing = TRUE)
+  return(freq)
+}
 
-tdm.ru.twit <- getTDM(twitter.ru, 100000)
-tmp <- apply(tdm.ru.twit,1,sum)
-freq.ru.twit <- sort(tmp, decreasing = TRUE)
+calcCoverage <- function(x) {
+  df <- data.frame(matrix(nrow=length(x),ncol=2))
+  names(df) <- c("index", "value")
+  df$index <- c(1:length(x))
+  df$value <- cumsum(x)*100/sum(x)
+  
+  return(df)
+}
+
+freq.en <- getFrequency(txt.en)
+freq.ru <- getFrequency(txt.ru)
+par(mfrow=c(1,2))
+hist(freq.en, breaks=1000, main="English words frequency\ndistribution", xlab="Words index", border="blue")
+hist(freq.ru, breaks=1000, main="Russian words frequency\ndistribution", xlab="Words index", border="red")
+
+txt.ru <- tm_map(txt.ru, removeWords, "это")
+freq.ru <- getFrequency(txt.ru)
+
+
+
+
+
+
+
 
 # Make wordcloud
 wordcloud(names(freq.en.twit), freqBlog, scale=c(5,0.5), max.words=30, 

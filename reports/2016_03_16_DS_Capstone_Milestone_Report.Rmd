@@ -80,6 +80,7 @@ getCorpus <- function(filename, sampleSize, profanityWords) {
   # remove punctuation, numbers and tolower the content
   raw <- gsub("[^[:alnum:][:space:]']", ' ', raw)
   raw <- gsub('[[:digit:]]+', ' ', raw)
+  raw <- gsub('[[:punct:]]+', '', raw)
   raw <- tolower(raw)
   
   # make a corpus
@@ -176,6 +177,7 @@ As we can see the word ***'это'*** has really higher frequency than any other
 ```{r, most_common_words_correction, cache=TRUE, warning=FALSE, message=FALSE}
 
 txt.ru <- tm_map(txt.ru, removeWords, "это")
+txt.en <- tm_map(txt.en, removeWords,  c("don", "didn", "can", "doesn", "isn", "wasn", "t", "dont", "u", "s", "c", "a", "p", "m"))
 freq.ru <- getFrequency(txt.ru)
 terms.ru <- data.frame(term=names(freq.ru), freq=freq.ru)
 ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
@@ -185,13 +187,46 @@ ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
 
 # Q2. What are the frequencies of 2-grams and 3-grams in the dataset? 
 
+Plot most common Bigrams and Trigrams.
+
 ```{r, n-grams_processing, cache=TRUE, warning=FALSE, message=FALSE}
 library(RWeka)
-bitoken <- function(x) RWeka::NGramTokenizer(x, Weka_control(min=2, max=2))
-threetoken <- function(x) NGramTokenizer(x, Weka_control(min=3, max=3))
+library(ggplot2)
 
-bigram.en <- TermDocumentMatrix(txt.en,control=list(tokenize = bitoken))
-trigram <- TermDocumentMatrix(Jumble, control=list(tokenize = Threesies))
+getNGramFrequency <- function(corpus, ngram) {
+  df <- data.frame(text = sapply(corpus, as.character), stringsAsFactors = FALSE)
+  delim <- " \\r\\n\\t.,;:\"()?!&+“”‘’'/"
+  df_tmp <- NGramTokenizer(df, Weka_control(min=ngram, max=ngram, delimiters = delim))
+  
+  df_ngram <- data.frame(table(df_tmp))
+  names(df_ngram) <- c("Ngram", "freq")
+  df_ngram <- df_ngram[order(df_ngram$freq, decreasing = TRUE),]
+  
+  rm(df,df_tmp)
+  return(df_ngram)
+}
+
+freq.bi.en <- getNGramFrequency(txt.en, 2)
+freq.tri.en <- getNGramFrequency(txt.en, 3)
+freq.bi.ru <- getNGramFrequency(txt.ru, 2)
+freq.tri.ru <- getNGramFrequency(txt.ru, 3)
+
+ggplot(head(freq.bi.en, 10), aes(reorder(Ngram, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ggtitle("Most common EN bigrams") + xlab("Word") + ylab("Frequency")
+
+ggplot(head(freq.tri.en, 7), aes(reorder(Ngram, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ggtitle("Most common EN threegrams") + xlab("Word") + ylab("Frequency")
+
+ggplot(head(freq.bi.ru, 10), aes(reorder(Ngram, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ggtitle("Most common RU bigrams") + xlab("Word") + ylab("Frequency")
+
+ggplot(head(freq.tri.ru, 7), aes(reorder(Ngram, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ggtitle("Most common RU threegrams") + xlab("Word") + ylab("Frequency")
+
 ```
 # Q3. How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language? 90%
 
@@ -245,6 +280,12 @@ wordcloud(names(freq.ru), freq.en, scale=c(5,0.1), max.words=coverage50.ru, rand
           rot.per=0.5, use.r.layout=FALSE, colors=brewer.pal(8,"Dark2"))
 
 ```
+
+# Q4. How do you evaluate how many of the words come from foreign languages? 
+
+We can evaluate the foreign words using POS (Part of Speech) tags using the NLP package.
+
+# Q5. Can you think of a way to increase the coverage -- identifying words that may not be in the corpora or using a smaller number of words in the dictionary to cover the same number of phrases?
 
 
 
