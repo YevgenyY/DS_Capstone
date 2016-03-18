@@ -59,11 +59,12 @@ getBasicStats <- function(x) {
 
 The data should be cleaned before modeling. As far as we are going to predict words we should remove numbers, punctuation, URLs, profanity words and stopwords (that came from grammar) from texts. In addition we should think about quality of sampling, because the dataset is large enough.
 
-```{r, preprocessing, cache=TRUE, warning=FALSE}
+```{r, preprocessing, cache=TRUE, warning=FALSE, message=FALSE}
+library(tm)
 getCorpus <- function(filename, sampleSize, profanityWords) {
   conn <- file(filename,open="r")
   
-  lines <- readLines(conn)
+  lines <- iconv(readLines(conn), to = "utf-8")
   if (sampleSize != 0) {
     # Sample data with uniform distribution
     rowNums <- round(runif(sampleSize, min=1, max=length(lines)),0)
@@ -97,6 +98,7 @@ getCorpus <- function(filename, sampleSize, profanityWords) {
   return(txt.corpus)
 }
 
+setwd("~/Coursera/DS_Capstone/")
 blog.en="data/final/en_US/en_US.blogs.txt"
 news.en="data/final/en_US/en_US.news.txt"
 twitter.en="data/final/en_US/en_US.twitter.txt"
@@ -104,21 +106,29 @@ blog.ru="data/final/ru_RU/ru_RU.blogs.txt"
 news.ru="data/final/ru_RU/ru_RU.news.txt"
 twitter.ru="data/final/ru_RU/ru_RU.twitter.txt"
 
-profanityWords <- read.csv(url("http://www.bannedwordlist.com/lists/swearWords.csv"))
+profanityWords.en <- names(read.csv(url("http://www.bannedwordlist.com/lists/swearWords.csv")))
+profanityWords.ru <- names(read.csv("data/profanity_russian.txt"))
 
-txt.en.blog <- getCorpus(blog.en, 10000, profanityWords)
-txt.en.news <- getCorpus(news.en, 10000, profanityWords)
-txt.en.twit <- getCorpus(twitter.en, 10000, profanityWords)
-txt.ru.blog <- getCorpus(blog.ru, 10000, profanityWords)
-txt.ru.news <- getCorpus(news.ru, 10000, profanityWords)
-txt.ru.twit <- getCorpus(twitter.ru, 10000, profanityWords)
+txt.en.blog <- getCorpus(blog.en, 10000, profanityWords.en)
+txt.en.news <- getCorpus(news.en, 10000, profanityWords.en)
+txt.en.twit <- getCorpus(twitter.en, 10000, profanityWords.en)
+txt.ru.blog <- getCorpus(blog.ru, 10000, profanityWords.ru)
+txt.ru.news <- getCorpus(news.ru, 10000, profanityWords.ru)
+txt.ru.twit <- getCorpus(twitter.ru, 10000, profanityWords.ru)
 
+txt.en <- c(txt.en.blog, txt.en.news, txt.en.twit)
+txt.ru <- c(txt.ru.blog, txt.ru.news, txt.ru.twit)
+
+# free memory
+rm(txt.en.blog, txt.en.news, txt.en.twit, txt.ru.blog, txt.ru.news, txt.ru.twit)
 ```
 
 # Question #1 
 ## Some words are more frequent than others - what are the distribution of word frequencies?
 
-```{r, words_frequency, cache=TRUE}
+The interesting finding of Russian words frequency analysis is that the word ***'это'*** should be included in Russian stopwords list in R. This word means ***this** in English and it isn't included into stopwards("russian") function in R. 
+
+```{r, words_frequency, cache=TRUE, warning=FALSE, message=FALSE}
 library(slam)
 getFrequency <- function(x) {
   tdm <- TermDocumentMatrix(x)
@@ -130,24 +140,111 @@ getFrequency <- function(x) {
 }
 
 calcCoverage <- function(x) {
-  df <- data.frame(matrix(nrow=0,ncol=2))
+  df <- data.frame(matrix(nrow=length(x),ncol=2))
   names(df) <- c("index", "value")
-  df[1,] <- c(1, x[1])
-  for (i in 2:length(x)) {
-    df <- rbind(df, c(i, df$value[i-1] + x[i]))
-  }
- 
-  df$value <- df$value/df$value[i] 
-  
+  df$index <- c(1:length(x))
+  df$value <- cumsum(x)*100/sum(x)
+
   return(df)
 }
 
-freq.en.blog <- getFrequency(txt.en.blog)
-freq.en.news <- getFrequency(txt.en.news)
-freq.en.twit <- getFrequency(txt.en.twit)
-
-freq.ru.blog <- getFrequency(txt.en.blog)
-df <- calcCoverage(freq.en.blog)
+freq.en <- getFrequency(txt.en)
+freq.ru <- getFrequency(txt.ru)
+par(mfrow=c(1,2))
+hist(freq.en, breaks=1000, main="English words frequency\ndistribution", xlab="Words index", border="blue")
+hist(freq.ru, breaks=1000, main="Russian words frequency\ndistribution", xlab="Words index", border="red")
 ```
+
+Most common words are plotted.
+```{r, most_common_words, cache=TRUE, warning=FALSE}
+library(ggplot2)
+terms.en <- data.frame(term=names(freq.en), freq=freq.en)
+ggplot(head(terms.en, 10), aes(reorder(term, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") +
+  ggtitle("Most common words") + xlab("Word") + ylab("Frequency")
+
+terms.ru <- data.frame(term=names(freq.ru), freq=freq.ru)
+
+ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") +
+  ggtitle("Most common words") + xlab("Word") + ylab("Frequency")
+
+```
+
+As we can see the word ***'это'*** has really higher frequency than any other Russian word in the corpus. This word means ***'this'*** in English and should be included in Russian stopwords list in R. Let's remove this word and make words frequency again.
+
+```{r, most_common_words_correction, cache=TRUE, warning=FALSE, message=FALSE}
+
+txt.ru <- tm_map(txt.ru, removeWords, "это")
+freq.ru <- getFrequency(txt.ru)
+terms.ru <- data.frame(term=names(freq.ru), freq=freq.ru)
+ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") +
+  ggtitle("Most common words") + xlab("Word") + ylab("Frequency")
+```
+
+# Q2. What are the frequencies of 2-grams and 3-grams in the dataset? 
+
+```{r, n-grams_processing, cache=TRUE, warning=FALSE, message=FALSE}
+library(RWeka)
+bitoken <- function(x) RWeka::NGramTokenizer(x, Weka_control(min=2, max=2))
+threetoken <- function(x) NGramTokenizer(x, Weka_control(min=3, max=3))
+
+bigram.en <- TermDocumentMatrix(txt.en,control=list(tokenize = bitoken))
+trigram <- TermDocumentMatrix(Jumble, control=list(tokenize = Threesies))
+```
+# Q3. How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language? 90%
+
+| Language        | 50% coverage | 90% coverage | Number of words in corpus|
+| --------------- | ------------ | ------------ | ------------------------ |
+| English         |  362 (12%)   | 1716 (56%)   | 2524                     |
+| Russian         |  511 (22%)   | 1994 (84%)   | 2653                     |
+
+
+```{r, echo=FALSE, word_frequency_coverage, cache=TRUE, warning=FALSE, message=FALSE}
+df.en <- calcCoverage(freq.en)
+coverage50.en <- min(df.en[df.en$value > 50,]$index)
+coverage90.en <- min(df.en[df.en$value > 90,]$index)
+coverage.en <- c(coverage50.en, coverage50.en*100/sum(freq.en), coverage90.en, coverage90.en*100/sum(freq.en))
+names(coverage.en) <- c("coverage 50%", "percentage 50%", "coverage 90%", "percentage 90%")
+
+par(mfrow=c(1,2))
+plot(df.en, type="l",lwd=5, main="EN words frequency coverage", 
+     xlab="word index", ylab="frequency coverage",col="darkgrey")
+abline(v=coverage50.en, lty=2); abline(h=50, lty=2)
+abline(v=coverage90.en, lty=2); abline(h=90,lty=2)
+text(x=coverage50.en, y=52, "50% coverage",col="black", adj=c(0,0))
+text(x=coverage50.en, y=92, "90% coverage",col="black", adj=c(0,0))
+
+df.ru <- calcCoverage(freq.ru)
+coverage50.ru <- min(df.ru[df.ru$value > 50,]$index)
+coverage90.ru <- min(df.ru[df.ru$value > 90,]$index)
+
+plot(df.ru, type="l",lwd=5, main="RU words frequency coverage", 
+     xlab="word index", ylab="frequency coverage",col="darkgrey")
+abline(v=coverage50.ru, lty=2); abline(h=50, lty=2)
+abline(v=coverage90.ru, lty=2); abline(h=90,lty=2)
+text(x=coverage50.ru, y=52, "50% coverage",col="black", adj=c(0,0))
+text(x=coverage50.ru, y=92, "90% coverage",col="black", adj=c(0,0))
+
+# Russian words coverage
+coverage.ru <- c(coverage50.ru, coverage50.ru*100/sum(freq.ru), coverage90.ru, coverage90.ru*100/sum(freq.ru))
+names(coverage.ru) <- c("coverage 50%", "percentage 50%", "coverage 90%", "percentage 90%")
+
+# Summary
+summary <- rbind(round(coverage.en,2),round(coverage.ru,2))
+rownames(summary) <- c("english", "russian")
+summary
+
+# Have a look at most common words
+library(wordcloud)
+wordcloud(names(freq.en), freq.en, scale=c(5,0.1), max.words=coverage50.en, random.order=FALSE, 
+          rot.per=0.5, use.r.layout=FALSE, colors=brewer.pal(8,"Dark2"))
+
+wordcloud(names(freq.ru), freq.en, scale=c(5,0.1), max.words=coverage50.ru, random.order=FALSE, 
+          rot.per=0.5, use.r.layout=FALSE, colors=brewer.pal(8,"Dark2"))
+
+```
+
 
 
