@@ -1,5 +1,5 @@
 ---
-title: 'Data Science Capstone Project Milestone Report'
+title: 'Data Science Capstone Report - Exploratory analysis of HC Corpora dataset'
 author: "Yevgeny V. Yorkhov"
 date: "March 16, 2016"
 output: html_document
@@ -10,6 +10,8 @@ output: html_document
 This is a report of Coursera Data Science Capstone project assignment. Around the world people spend lot's of time on their mobile devices typing words, phrases and sentences. Making typing easier is a pretty good task for mobile developers. The cornerstone of this task is predictive text models. In the Capstone Project we work on understanding and developing such models.
 
 The report shows the exploratory analysis of the data from a corpus called HC Corpora [www.corpora.heliohost.org](http://www.corpora.heliohost.org). 
+
+All the code available at my [Github repository](https://github.com/YevgenyY/DS_Capstone/blob/master/reports/2016_03_16_DS_Capstone_Milestone_Report.Rmd)
 
 # Dataset
 
@@ -38,7 +40,7 @@ Before cleaning the data check basic statistics about full dataset. The table be
 | ru_RU.twitter.txt    | 101M |  881414         | 9084961         |
 
 
-```{r, basicStats, cache=TRUE}
+```{r, basicStats, cache=TRUE, echo=FALSE}
 getBasicStats <- function(x) {
   bytesMB <- 1024 * 1024
   conn <- file(x,open="r")
@@ -57,9 +59,12 @@ getBasicStats <- function(x) {
 
 # Data preprocessing
 
-The data should be cleaned before modeling. As far as we are going to predict words we should remove numbers, punctuation, URLs, profanity words and stopwords (that came from grammar) from texts. In addition we should think about quality of sampling, because the dataset is large enough.
+The data should be cleaned before modeling. As far as we are going to predict words we should remove numbers, punctuation, URLs, profanity words and stopwords (that came from grammar) from texts. We got English profanity words list froms this [link]("http://www.bannedwordlist.com/lists/swearWords.csv") and prepare Russian profanity words by hands.
 
-```{r, preprocessing, cache=TRUE, warning=FALSE, message=FALSE}
+In addition we should think about quality of sampling, because the dataset is large enough. So we use uniform distribution for randomizing input texts for analysis.
+
+
+```{r, preprocessing, cache=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
 library(tm)
 getCorpus <- function(filename, sampleSize, profanityWords) {
   conn <- file(filename,open="r")
@@ -124,12 +129,13 @@ txt.ru <- c(txt.ru.blog, txt.ru.news, txt.ru.twit)
 rm(txt.en.blog, txt.en.news, txt.en.twit, txt.ru.blog, txt.ru.news, txt.ru.twit)
 ```
 
-# Question #1 
-## Some words are more frequent than others - what are the distribution of word frequencies?
+# Q1. Some words are more frequent than others - what are the distribution of word frequencies?
 
-The interesting finding of Russian words frequency analysis is that the word ***'это'*** should be included in Russian stopwords list in R. This word means ***this** in English and it isn't included into stopwards("russian") function in R. 
+The distribution of word frequencies in English and Russian are quite similar. The interesting finding of Russian words frequency analysis is that the word ***'это'*** should be included in Russian stopwords list in R. This word means ***this** in English and it isn't included into stopwards("russian") function in R. 
 
-```{r, words_frequency, cache=TRUE, warning=FALSE, message=FALSE}
+Here we plot the word frequency distribution in two languages.
+
+```{r, words_frequency, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
 library(slam)
 getFrequency <- function(x) {
   tdm <- TermDocumentMatrix(x)
@@ -140,6 +146,130 @@ getFrequency <- function(x) {
   return(freq)
 }
 
+freq.en <- getFrequency(txt.en)
+freq.ru <- getFrequency(txt.ru)
+par(mfrow=c(1,2))
+hist(freq.en, breaks=1000, main="English words frequency\ndistribution", xlab="Words index", border="blue")
+hist(freq.ru, breaks=1000, main="Russian words frequency\ndistribution", xlab="Words index", border="red")
+
+library(ggplot2)
+terms.en <- data.frame(term=names(freq.en), freq=freq.en)
+ggplot(head(terms.en, 10), aes(reorder(term, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") +
+  ggtitle("Most common English words") + xlab("") + ylab("Frequency")
+
+```
+
+As we can see the Russian word ***'это'*** has really higher frequency than any other Russian word in the corpus. This word means ***'this'*** in English and should be included in Russian stopwords list in R. 
+
+```{r, most_common_words, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
+terms.ru <- data.frame(term=names(freq.ru), freq=freq.ru)
+ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") +
+  ggtitle("Most common Russian words") + xlab("") + ylab("Frequency")
+
+```
+
+As we found that the word ***'это'*** is excessive word, we remove this word from Russian text and plot most common Russian words again.
+
+```{r, most_common_words_correction, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
+
+txt.ru <- tm_map(txt.ru, removeWords, "это")
+txt.en <- tm_map(txt.en, removeWords,  c("don", "didn", "can", "doesn", "isn", "wasn", "t", "dont", "u", "s", "c", "a", "p", "m"))
+freq.ru <- getFrequency(txt.ru)
+terms.ru <- data.frame(term=names(freq.ru), freq=freq.ru)
+ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") +
+  ggtitle("Most common Russian words (corrected)") + xlab("") + ylab("Frequency")
+```
+
+# Q2. What are the frequencies of 2-grams and 3-grams in the dataset? 
+
+## Summary
+As expected frequencies of 2-grams and 3-grams are much lower than the frequency of 1-grams, but the total number of 2-grams or 3-grams are much higer. The interested finding is that the number of unique 2-grams doesn't differ much from the number of unique 3-grams.
+
+Plot most common 2-grams and 3-grams.
+
+```{r, n-grams_processing, cache=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
+library(RWeka)
+library(ggplot2)
+
+getNGramFrequency <- function(corpus, ngram) {
+  df <- data.frame(text = sapply(corpus, as.character), stringsAsFactors = FALSE)
+  delim <- " \\r\\n\\t.,;:\"()?!&+“”‘’'/"
+  df_tmp <- NGramTokenizer(df, Weka_control(min=ngram, max=ngram, delimiters = delim))
+  rm(df)
+  
+  df_ngram <- data.frame(table(df_tmp))
+  rm(df_tmp)
+  
+  names(df_ngram) <- c("Ngram", "freq")
+  df_ngram <- df_ngram[order(df_ngram$freq, decreasing = TRUE),]
+  
+  return(df_ngram)
+}
+
+freq.bi.en <- getNGramFrequency(txt.en, 2); freq.tri.en <- getNGramFrequency(txt.en, 3)
+freq.bi.ru <- getNGramFrequency(txt.ru, 2); freq.tri.ru <- getNGramFrequency(txt.ru, 3)
+
+ggplot(head(freq.bi.en, 30), aes(reorder(Ngram, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1, size=12)) +
+  ggtitle("Most common EN 2-grams") + xlab("") + ylab("Frequency")
+
+ggplot(head(freq.tri.en, 30), aes(reorder(Ngram, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1, size=12)) +
+  ggtitle("Most common EN 3-grams") + xlab("") + ylab("Frequency")
+
+ggplot(head(freq.bi.ru, 30), aes(reorder(Ngram, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1, size=12)) +
+  ggtitle("Most common RU 2-grams") + xlab("") + ylab("Frequency")
+
+ggplot(head(freq.tri.ru, 30), aes(reorder(Ngram, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1, size=12)) +
+  ggtitle("Most common RU 2-grams") + xlab("") + ylab("Frequency")
+
+```
+
+As expected the frequency of 2-grams and 3-grams is much lower than the frequency of 1-grams (or words), but the numbers of 2-grams or 3-grams is extremely higer. Let's plot these values.
+
+```{r, comparing_ngrams, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
+df<-data.frame(matrix(nrow=6,ncol=3))
+names(df) <- c("Number", "Mean", "SD")
+rownames(df) <- c("English 1-grams", "English 2-grams", "English 3-grams", 
+                  "Russian 1-grams", "Russian 2-grams", "Russian 3-grams")
+df[1,] <- c(length(freq.en), mean(freq.en), sd(freq.en))
+df[2,] <- c(length(freq.bi.en$freq), mean(freq.bi.en$freq), sd(freq.bi.en$freq))
+df[3,] <- c(length(freq.tri.en$freq), mean(freq.tri.en$freq), sd(freq.tri.en$freq))
+df[4,] <- c(length(freq.ru), mean(freq.ru), sd(freq.ru))
+df[5,] <- c(length(freq.bi.ru$freq), mean(freq.bi.ru$freq), sd(freq.bi.ru$freq))
+df[6,] <- c(length(freq.tri.ru$freq), mean(freq.tri.ru$freq), sd(freq.tri.ru$freq))
+
+ggplot(data=df, aes(x=rownames(df), y=Number, fill=rownames(df), title="Total number of ngrams")) + 
+  geom_bar(stat="identity") + xlab("ngram type") + ylab("number of ngram") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=12))
+
+ggplot(data=df, aes(x=rownames(df), y=Mean, fill=rownames(df), title="Mean of ngram frequency")) + 
+  geom_bar(stat="identity") + xlab("ngram type") + ylab("Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=12))
+
+ggplot(data=df, aes(x=rownames(df), y=SD, fill=rownames(df), title="Standard deviation of ngram frequency")) + 
+  geom_bar(stat="identity") + xlab("ngram type") + ylab("number of ngram") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size=12))
+
+```
+
+# Q3. How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language? 90%
+
+| Language        | 50% coverage | 90% coverage | Number of words in corpus|
+| --------------- | ------------ | ------------ | ------------------------ |
+| English         |  362 (12%)   | 1716 (56%)   | 2524                     |
+| Russian         |  511 (22%)   | 1994 (84%)   | 2653                     |
+
+As we can see we need twice fewer unique words in English comparing with Russian to cover 50% of all word instances in the corpus.
+
+Let's plot the words that cover 50% of corpus in two languages.
+
+```{r, echo=FALSE, word_frequency_coverage, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
 calcCoverage <- function(x) {
   df <- data.frame(matrix(nrow=length(x),ncol=2))
   names(df) <- c("index", "value")
@@ -149,101 +279,13 @@ calcCoverage <- function(x) {
   return(df)
 }
 
-freq.en <- getFrequency(txt.en)
-freq.ru <- getFrequency(txt.ru)
-par(mfrow=c(1,2))
-hist(freq.en, breaks=1000, main="English words frequency\ndistribution", xlab="Words index", border="blue")
-hist(freq.ru, breaks=1000, main="Russian words frequency\ndistribution", xlab="Words index", border="red")
-```
-
-Most common words are plotted.
-```{r, most_common_words, cache=TRUE, warning=FALSE}
-library(ggplot2)
-terms.en <- data.frame(term=names(freq.en), freq=freq.en)
-ggplot(head(terms.en, 10), aes(reorder(term, -freq), freq, fill=freq)) +
-  geom_bar(stat="identity") +
-  ggtitle("Most common words") + xlab("Word") + ylab("Frequency")
-
-terms.ru <- data.frame(term=names(freq.ru), freq=freq.ru)
-
-ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
-  geom_bar(stat="identity") +
-  ggtitle("Most common words") + xlab("Word") + ylab("Frequency")
-
-```
-
-As we can see the word ***'это'*** has really higher frequency than any other Russian word in the corpus. This word means ***'this'*** in English and should be included in Russian stopwords list in R. Let's remove this word and make words frequency again.
-
-```{r, most_common_words_correction, cache=TRUE, warning=FALSE, message=FALSE}
-
-txt.ru <- tm_map(txt.ru, removeWords, "это")
-txt.en <- tm_map(txt.en, removeWords,  c("don", "didn", "can", "doesn", "isn", "wasn", "t", "dont", "u", "s", "c", "a", "p", "m"))
-freq.ru <- getFrequency(txt.ru)
-terms.ru <- data.frame(term=names(freq.ru), freq=freq.ru)
-ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
-  geom_bar(stat="identity") +
-  ggtitle("Most common words") + xlab("Word") + ylab("Frequency")
-```
-
-# Q2. What are the frequencies of 2-grams and 3-grams in the dataset? 
-
-Plot most common Bigrams and Trigrams.
-
-```{r, n-grams_processing, cache=TRUE, warning=FALSE, message=FALSE}
-library(RWeka)
-library(ggplot2)
-
-getNGramFrequency <- function(corpus, ngram) {
-  df <- data.frame(text = sapply(corpus, as.character), stringsAsFactors = FALSE)
-  delim <- " \\r\\n\\t.,;:\"()?!&+“”‘’'/"
-  df_tmp <- NGramTokenizer(df, Weka_control(min=ngram, max=ngram, delimiters = delim))
-  
-  df_ngram <- data.frame(table(df_tmp))
-  names(df_ngram) <- c("Ngram", "freq")
-  df_ngram <- df_ngram[order(df_ngram$freq, decreasing = TRUE),]
-  
-  rm(df,df_tmp)
-  return(df_ngram)
-}
-
-freq.bi.en <- getNGramFrequency(txt.en, 2)
-freq.tri.en <- getNGramFrequency(txt.en, 3)
-freq.bi.ru <- getNGramFrequency(txt.ru, 2)
-freq.tri.ru <- getNGramFrequency(txt.ru, 3)
-
-ggplot(head(freq.bi.en, 10), aes(reorder(Ngram, -freq), freq, fill=freq)) +
-  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ggtitle("Most common EN bigrams") + xlab("Word") + ylab("Frequency")
-
-ggplot(head(freq.tri.en, 7), aes(reorder(Ngram, -freq), freq, fill=freq)) +
-  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ggtitle("Most common EN threegrams") + xlab("Word") + ylab("Frequency")
-
-ggplot(head(freq.bi.ru, 10), aes(reorder(Ngram, -freq), freq, fill=freq)) +
-  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ggtitle("Most common RU bigrams") + xlab("Word") + ylab("Frequency")
-
-ggplot(head(freq.tri.ru, 7), aes(reorder(Ngram, -freq), freq, fill=freq)) +
-  geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  ggtitle("Most common RU threegrams") + xlab("Word") + ylab("Frequency")
-
-```
-# Q3. How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language? 90%
-
-| Language        | 50% coverage | 90% coverage | Number of words in corpus|
-| --------------- | ------------ | ------------ | ------------------------ |
-| English         |  362 (12%)   | 1716 (56%)   | 2524                     |
-| Russian         |  511 (22%)   | 1994 (84%)   | 2653                     |
-
-
-```{r, echo=FALSE, word_frequency_coverage, cache=TRUE, warning=FALSE, message=FALSE}
 df.en <- calcCoverage(freq.en)
 coverage50.en <- min(df.en[df.en$value > 50,]$index)
 coverage90.en <- min(df.en[df.en$value > 90,]$index)
 coverage.en <- c(coverage50.en, coverage50.en*100/sum(freq.en), coverage90.en, coverage90.en*100/sum(freq.en))
 names(coverage.en) <- c("coverage 50%", "percentage 50%", "coverage 90%", "percentage 90%")
 
-par(mfrow=c(1,2))
+#par(mfrow=c(1,2))
 plot(df.en, type="l",lwd=5, main="EN words frequency coverage", 
      xlab="word index", ylab="frequency coverage",col="darkgrey")
 abline(v=coverage50.en, lty=2); abline(h=50, lty=2)
@@ -273,6 +315,7 @@ summary
 
 # Have a look at most common words
 library(wordcloud)
+par(mfrow=c(1,2))
 wordcloud(names(freq.en), freq.en, scale=c(5,0.1), max.words=coverage50.en, random.order=FALSE, 
           rot.per=0.5, use.r.layout=FALSE, colors=brewer.pal(8,"Dark2"))
 
@@ -283,9 +326,13 @@ wordcloud(names(freq.ru), freq.en, scale=c(5,0.1), max.words=coverage50.ru, rand
 
 # Q4. How do you evaluate how many of the words come from foreign languages? 
 
-We can evaluate the foreign words using POS (Part of Speech) tags using the NLP package.
+I think that the approach of identifying words from other languages may look like these:
+
+1. Transliterate words into a single alphabet, i.e. Russian language which uses cyrillic alphabet should be transliterated into Latin/English alphabet.
+2. Remove preffixes and suffixes of words, finding a stem of each word in a text/dictionary. These word transformation called as ***stemming*** and there are a variety of algorithm for this. The most popular algorithm is [Porter stemming](https://en.wikipedia.org/wiki/Stemming). The fast stemming algorithm for Russian language, which used in Yandex search engine described by ***Ilya Segalovich*** in the article [A fast morphological algorithm with unknown word guessing induced by a dictionary for a web search engine](https://en.wikipedia.org/wiki/Stemming) .
+3. Find a correlation between ***stems of words*** in different languages based on the letters, lengths, ngrams, etc. There should be a threshold which helps to make a decision about the words that come from foreign languages.
 
 # Q5. Can you think of a way to increase the coverage -- identifying words that may not be in the corpora or using a smaller number of words in the dictionary to cover the same number of phrases?
 
-
+I think that the successful strategy of increasing the coverage with smaller number of words in the dictionary is - using stemming for words prediction. We can use the stem of a word to predict all words with the same stem, even if some of them are not presented in the corpus.
 

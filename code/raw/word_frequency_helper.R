@@ -109,8 +109,13 @@ hist(freq.en, breaks=1000, main="English words frequency\ndistribution", xlab="W
 hist(freq.ru, breaks=1000, main="Russian words frequency\ndistribution", xlab="Words index", border="red")
 
 txt.ru <- tm_map(txt.ru, removeWords, "это")
+txt.en <- tm_map(txt.en, removeWords,  c("don", "didn", "can", "doesn", "isn", "wasn", "t", "dont", "u", "s", "c", "a", "p", "m"))
+
 freq.ru <- getFrequency(txt.ru)
 
+ggplot(test_data, aes(date)) + 
+  geom_line(aes(y = var0, colour = "var0")) + 
+  geom_line(aes(y = var1, colour = "var1"))
 
 
 
