@@ -135,7 +135,7 @@ The distribution of word frequencies in English and Russian are quite similar. T
 
 Here we plot the word frequency distribution in two languages.
 
-```{r, words_frequency, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
+```{r, words_frequency, cache=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
 library(slam)
 getFrequency <- function(x) {
   tdm <- TermDocumentMatrix(x)
@@ -148,24 +148,26 @@ getFrequency <- function(x) {
 
 freq.en <- getFrequency(txt.en)
 freq.ru <- getFrequency(txt.ru)
+```
+```{r,plot_words_freq, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
 par(mfrow=c(1,2))
 hist(freq.en, breaks=1000, main="English words frequency\ndistribution", xlab="Words index", border="blue")
 hist(freq.ru, breaks=1000, main="Russian words frequency\ndistribution", xlab="Words index", border="red")
-
-library(ggplot2)
-terms.en <- data.frame(term=names(freq.en), freq=freq.en)
-ggplot(head(terms.en, 10), aes(reorder(term, -freq), freq, fill=freq)) +
-  geom_bar(stat="identity") +
-  ggtitle("Most common English words") + xlab("") + ylab("Frequency")
-
 ```
 
 As we can see the Russian word ***'это'*** has really higher frequency than any other Russian word in the corpus. This word means ***'this'*** in English and should be included in Russian stopwords list in R. 
 
 ```{r, most_common_words, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
+library(ggplot2)
+
+terms.en <- data.frame(term=names(freq.en), freq=freq.en)
+ggplot(head(terms.en, 10), aes(reorder(term, -freq), freq, fill=freq)) +
+  geom_bar(stat="identity") + coord_flip() +
+  ggtitle("Most common English words") + xlab("") + ylab("Frequency")
+
 terms.ru <- data.frame(term=names(freq.ru), freq=freq.ru)
 ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
-  geom_bar(stat="identity") +
+  geom_bar(stat="identity") + coord_flip() +
   ggtitle("Most common Russian words") + xlab("") + ylab("Frequency")
 
 ```
@@ -179,7 +181,7 @@ txt.en <- tm_map(txt.en, removeWords,  c("don", "didn", "can", "doesn", "isn", "
 freq.ru <- getFrequency(txt.ru)
 terms.ru <- data.frame(term=names(freq.ru), freq=freq.ru)
 ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
-  geom_bar(stat="identity") +
+  geom_bar(stat="identity") + coord_flip() +
   ggtitle("Most common Russian words (corrected)") + xlab("") + ylab("Frequency")
 ```
 
@@ -230,7 +232,7 @@ ggplot(head(freq.tri.ru, 30), aes(reorder(Ngram, -freq), freq, fill=freq)) +
 
 ```
 
-As expected the frequency of 2-grams and 3-grams is much lower than the frequency of 1-grams (or words), but the numbers of 2-grams or 3-grams is extremely higer. Let's plot these values.
+As expected the frequency of 2-grams and 3-grams is much lower than the frequency of 1-grams (or words), but the numbers of 2-grams or 3-grams are extremely higer. Let's plot these values.
 
 ```{r, comparing_ngrams, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
 df<-data.frame(matrix(nrow=6,ncol=3))
@@ -260,10 +262,10 @@ ggplot(data=df, aes(x=rownames(df), y=SD, fill=rownames(df), title="Standard dev
 
 # Q3. How many unique words do you need in a frequency sorted dictionary to cover 50% of all word instances in the language? 90%
 
-| Language        | 50% coverage | 90% coverage | Number of words in corpus|
-| --------------- | ------------ | ------------ | ------------------------ |
-| English         |  362 (12%)   | 1716 (56%)   | 2524                     |
-| Russian         |  511 (22%)   | 1994 (84%)   | 2653                     |
+| Language        | 50% coverage | 90% coverage | 
+| --------------- | ------------ | ------------ | 
+| English         |  366 (12%)   | 1743 (56%)   | 
+| Russian         |  536 (23%)   | 2014 (87%)   | 
 
 As we can see we need twice fewer unique words in English comparing with Russian to cover 50% of all word instances in the corpus.
 
@@ -312,14 +314,16 @@ names(coverage.ru) <- c("coverage 50%", "percentage 50%", "coverage 90%", "perce
 summary <- rbind(round(coverage.en,2),round(coverage.ru,2))
 rownames(summary) <- c("english", "russian")
 summary
+```
 
+```{r, plot_wordcloud, echo=FALSE, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
 # Have a look at most common words
 library(wordcloud)
 par(mfrow=c(1,2))
-wordcloud(names(freq.en), freq.en, scale=c(5,0.1), max.words=coverage50.en, random.order=FALSE, 
+wordcloud(names(freq.en), freq.en, scale=c(2,0.2), max.words=coverage50.en, random.order=FALSE, 
           rot.per=0.5, use.r.layout=FALSE, colors=brewer.pal(8,"Dark2"))
 
-wordcloud(names(freq.ru), freq.en, scale=c(5,0.1), max.words=coverage50.ru, random.order=FALSE, 
+wordcloud(names(freq.ru), freq.en, scale=c(1.5,0.2), max.words=coverage50.ru, random.order=FALSE, 
           rot.per=0.5, use.r.layout=FALSE, colors=brewer.pal(8,"Dark2"))
 
 ```
