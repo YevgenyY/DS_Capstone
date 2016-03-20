@@ -11,7 +11,7 @@ This is a report of Coursera Data Science Capstone project assignment. Around th
 
 The report shows the exploratory analysis of the data from a corpus called HC Corpora [www.corpora.heliohost.org](http://www.corpora.heliohost.org). 
 
-All the code available at my [Github repository](https://github.com/YevgenyY/DS_Capstone/blob/master/reports/2016_03_16_DS_Capstone_Milestone_Report.Rmd)
+The code of the report is available at my [Github repository](https://github.com/YevgenyY/DS_Capstone/blob/master/reports/2016_03_16_DS_Capstone_Milestone_Report.Rmd)
 
 # Dataset
 
@@ -59,9 +59,9 @@ getBasicStats <- function(x) {
 
 # Data preprocessing
 
-The data should be cleaned before modeling. As far as we are going to predict words we should remove numbers, punctuation, URLs, profanity words and stopwords (that came from grammar) from texts. We got English profanity words list froms this [link]("http://www.bannedwordlist.com/lists/swearWords.csv") and prepare Russian profanity words by hands.
+The data should be cleaned before modeling. As far as we are going to predict words we should remove numbers, punctuation, URLs, profanity words and stopwords (that come from grammar, i.e. "do", "does", etc.) from texts. As far as we don't want to predict profanity words, we use English profanity words list from this [link]("http://www.bannedwordlist.com/lists/swearWords.csv") and prepare Russian profanity words by hands.
 
-In addition we should think about quality of sampling, because the dataset is large enough. So we use uniform distribution for randomizing input texts for analysis.
+In addition, we should think about quality of sampling, because the dataset is large enough for the ordinary CPU. So we use uniform distribution for randomizing input texts for analysis.
 
 
 ```{r, preprocessing, cache=TRUE, warning=FALSE, message=FALSE, echo=TRUE}
@@ -131,7 +131,7 @@ rm(txt.en.blog, txt.en.news, txt.en.twit, txt.ru.blog, txt.ru.news, txt.ru.twit)
 
 # Q1. Some words are more frequent than others - what are the distribution of word frequencies?
 
-The distribution of word frequencies in English and Russian are quite similar. The interesting finding of Russian words frequency analysis is that the word ***'это'*** should be included in Russian stopwords list in R. This word means ***this** in English and it isn't included into stopwards("russian") function in R. 
+The distribution of word frequencies in English and Russian are quite similar. The interesting finding of Russian words frequency analysis is that the word ***'это'*** should be included in Russian stopwords list in R. This word means ***this** in English and it isn't included into stopwords("russian") function in R. 
 
 Here we plot the word frequency distribution in two languages.
 
@@ -155,7 +155,6 @@ hist(freq.en, breaks=1000, main="English words frequency\ndistribution", xlab="W
 hist(freq.ru, breaks=1000, main="Russian words frequency\ndistribution", xlab="Words index", border="red")
 ```
 
-As we can see the Russian word ***'это'*** has really higher frequency than any other Russian word in the corpus. This word means ***'this'*** in English and should be included in Russian stopwords list in R. 
 
 ```{r, most_common_words, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
 library(ggplot2)
@@ -172,7 +171,7 @@ ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
 
 ```
 
-As we found that the word ***'это'*** is excessive word, we remove this word from Russian text and plot most common Russian words again.
+As we can see the Russian word ***'это'*** has really higher frequency than any other Russian word in the corpus. This word means ***'this'*** in English and should be included in Russian stopwords list in R.As we found the word ***'это'*** is excessive word, we remove this word from Russian text and plot most common Russian words again.
 
 ```{r, most_common_words_correction, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
 
@@ -316,6 +315,8 @@ rownames(summary) <- c("english", "russian")
 summary
 ```
 
+Plot the words that cover 50% of all word instances in the blogs, news and twitter (HC Coprora dataset).
+
 ```{r, plot_wordcloud, echo=FALSE, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
 # Have a look at most common words
 library(wordcloud)
@@ -338,5 +339,5 @@ I think that the approach of identifying words from other languages may look lik
 
 # Q5. Can you think of a way to increase the coverage -- identifying words that may not be in the corpora or using a smaller number of words in the dictionary to cover the same number of phrases?
 
-I think that the successful strategy of increasing the coverage with smaller number of words in the dictionary is - using stemming for words prediction. We can use the stem of a word to predict all words with the same stem, even if some of them are not presented in the corpus.
+I think that the successful strategy of increasing the coverage with smaller number of words in the dictionary is using stemming for words prediction. We can use the stem of a word to predict all words with the same stem, even if some of them are not presented in the corpus.
 
