@@ -341,3 +341,5 @@ I think that the approach of identifying words from other languages may look lik
 
 I think that the successful strategy of increasing the coverage with smaller number of words in the dictionary is using stemming for words prediction. We can use the stem of a word to predict all words with the same stem, even if some of them are not presented in the corpus.
 
+The other strategy of increasing coverage is to build a probabilistic language model.
+
