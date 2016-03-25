@@ -7,7 +7,7 @@ output: html_document
 
 # Synopsis
 
-This is a report of Coursera Data Science Capstone project assignment. Around the world people spend lot's of time on their mobile devices typing words, phrases and sentences. Making typing easier is a pretty good task for mobile developers. The cornerstone of this task is predictive text models. In the Capstone Project we work on understanding and developing such models.
+This is a report of Coursera Data Science Capstone project assignment. Around the world people spend lots of time on their mobile devices typing words, phrases and sentences. Making typing easier is a challenging task for mobile developers. The cornerstone of this task is predictive text models. In the Capstone Project we work on understanding and developing such models.
 
 The report shows the exploratory analysis of the data from a corpus called HC Corpora [www.corpora.heliohost.org](http://www.corpora.heliohost.org). 
 
@@ -15,7 +15,7 @@ The code of the report is available at my [Github repository](https://github.com
 
 # Dataset
 
-Dataset is available at the [following URL](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip). It consist of texts downloaded from different Internet websites, divided by 4-languages (English, Russian, German, Finnish) and parted into three files according to the text's source:
+Dataset is available at the [following URL](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip). It consists of the texts downloaded from different Internet websites, divided by 4-languages (English, Russian, German, Finnish) and parted into three files according to the text's sources:
 
 
 - texts from blogs (i.e. en_US.blogs.txt)
@@ -24,11 +24,11 @@ Dataset is available at the [following URL](https://d396qusza40orc.cloudfront.ne
 
 Also the readme of the dataset is available [here](http://www.corpora.heliohost.org/aboutcorpus.html )
 
-In spite of the texts are language-filtered, but they may contain foreign text. Also the texts may contain some offensive words or phrases that shouldn't be used in the predictive text modeling.
+In spite of the fact that the texts are language-filtered, they may contain foreign texts. Also, the texts may contain some offensive words or phrases that shouldn't be used in the predictive text modeling.
 
 # Basic statistics
 
-Before cleaning the data check basic statistics about full dataset. The table below show the summary:
+Before cleaning the data check basic statistics about full dataset. The table below shows the summary:
 
 | Filename             | Size | Number of lines | Number of words |
 | -------------------- | ---- | --------------- | --------------- |
@@ -59,7 +59,7 @@ getBasicStats <- function(x) {
 
 # Data preprocessing
 
-The data should be cleaned before modeling. As far as we are going to predict words we should remove numbers, punctuation, URLs, profanity words and stopwords (that come from grammar, i.e. "do", "does", etc.) from texts. As far as we don't want to predict profanity words, we use English profanity words list from this [link]("http://www.bannedwordlist.com/lists/swearWords.csv") and prepare Russian profanity words by hands.
+The data should be cleaned before modeling. As far as we are going to predict words we should remove numbers, punctuation, URLs, profanity words and stopwords (that come from grammar, i.e. "do", "does", etc.) from the texts. As far as we don't want to predict profanity words, we use English profanity words list from this [link]("http://www.bannedwordlist.com/lists/swearWords.csv") and prepare Russian profanity words by hand.
 
 In addition, we should think about quality of sampling, because the dataset is large enough for the ordinary CPU. So we use uniform distribution for randomizing input texts for analysis.
 
@@ -171,7 +171,7 @@ ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
 
 ```
 
-As we can see the Russian word ***'это'*** has really higher frequency than any other Russian word in the corpus. This word means ***'this'*** in English and should be included in Russian stopwords list in R.As we found the word ***'это'*** is excessive word, we remove this word from Russian text and plot most common Russian words again.
+As we can see the Russian word ***'это'*** has really higher frequency than any other Russian word in the corpus. This word means ***'this'*** in English and should be included in Russian stopwords list in R. As we found that the word ***'это'*** is an excessive word, we remove this word from the Russian texts and plot most common Russian words again.
 
 ```{r, most_common_words_correction, cache=TRUE, warning=FALSE, message=FALSE, echo=FALSE}
 
@@ -187,7 +187,7 @@ ggplot(head(terms.ru, 10), aes(reorder(term, -freq), freq, fill=freq)) +
 # Q2. What are the frequencies of 2-grams and 3-grams in the dataset? 
 
 ## Summary
-As expected frequencies of 2-grams and 3-grams are much lower than the frequency of 1-grams, but the total number of 2-grams or 3-grams are much higer. The interested finding is that the number of unique 2-grams doesn't differ much from the number of unique 3-grams.
+As expected, frequencies of 2-grams and 3-grams are much lower than the frequency of 1-grams, but the total numbers of 2-grams or 3-grams are much higer. The interesting finding is that the number of unique 2-grams doesn't differ much from the number of unique 3-grams.
 
 Plot most common 2-grams and 3-grams.
 
@@ -334,7 +334,7 @@ wordcloud(names(freq.ru), freq.en, scale=c(1.5,0.2), max.words=coverage50.ru, ra
 I think that the approach of identifying words from other languages may look like these:
 
 1. Transliterate words into a single alphabet, i.e. Russian language which uses cyrillic alphabet should be transliterated into Latin/English alphabet.
-2. Remove preffixes and suffixes of words, finding a stem of each word in a text/dictionary. These word transformation called as ***stemming*** and there are a variety of algorithm for this. The most popular algorithm is [Porter stemming](https://en.wikipedia.org/wiki/Stemming). The fast stemming algorithm for Russian language, which used in Yandex search engine described by ***Ilya Segalovich*** in the article [A fast morphological algorithm with unknown word guessing induced by a dictionary for a web search engine](https://en.wikipedia.org/wiki/Stemming) .
+2. Remove preffixes and suffixes of words, finding a stem of each word in a text/dictionary. These word transformation is called as ***stemming*** and there is a variety of algorithm for this. The most popular algorithm is [Porter stemming](https://en.wikipedia.org/wiki/Stemming). The fast stemming algorithm for Russian language, which is used in Yandex search engine described by ***Ilya Segalovich*** in the article [A fast morphological algorithm with unknown word guessing induced by a dictionary for a web search engine](https://en.wikipedia.org/wiki/Stemming) .
 3. Find a correlation between ***stems of words*** in different languages based on the letters, lengths, ngrams, etc. There should be a threshold which helps to make a decision about the words that come from foreign languages.
 
 # Q5. Can you think of a way to increase the coverage -- identifying words that may not be in the corpora or using a smaller number of words in the dictionary to cover the same number of phrases?

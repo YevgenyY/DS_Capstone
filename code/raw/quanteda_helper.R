@@ -93,7 +93,14 @@ freq_tri <- sort(colSums(dfm_tri), decreasing = TRUE)
 freq_quad  <- sort(colSums(dfm_quad),  decreasing = TRUE)
 freq_penta <- sort(colSums(dfm_penta), decreasing = TRUE)
 
-save(freq_one, freq_two, freq_tri, freq_quad, freq_penta,
+df.one <- data.frame(cbind(names(freq_one), freq_one)); names(df.one) <- c("ngram", "freq")
+df.two <- data.frame(cbind(names(freq_two), freq_two)); names(df.two) <- c("ngram", "freq")
+df.tri <- data.frame(cbind(names(freq_tri), freq_tri)); names(df.tri) <- c("ngram", "freq")
+df.quad <- data.frame(cbind(names(freq_quad), freq_quad)); names(df.quad) <- c("ngram", "freq")
+df.penta <- data.frame(cbind(names(freq_penta), freq_penta)); names(df.penta) <- c("ngram", "freq")
+
+save(df.one, df.two, df.tri, df.quad, df.penta,
+     freq_one, freq_two, freq_tri, freq_quad, freq_penta,
      tokens, unigrams, bigrams, trigrams, quadgrams, pentagrams,
      dfm_one,dfm_two,dfm_tri,dfm_quad,dfm_penta, file="data/freq_tokens_dfm.Rda")
 
