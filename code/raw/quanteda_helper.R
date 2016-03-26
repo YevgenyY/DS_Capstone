@@ -93,11 +93,11 @@ f3 <- sort(colSums(dfm_tri), decreasing = TRUE)
 f4  <- sort(colSums(dfm_quad),  decreasing = TRUE)
 f5 <- sort(colSums(dfm_penta), decreasing = TRUE)
 
-df.one <- data.frame(cbind(names(freq_one), freq_one)); names(df.one) <- c("ngram", "freq")
-df.two <- data.frame(cbind(names(freq_two), freq_two)); names(df.two) <- c("ngram", "freq")
-df.tri <- data.frame(cbind(names(freq_tri), freq_tri)); names(df.tri) <- c("ngram", "freq")
-df.quad <- data.frame(cbind(names(freq_quad), freq_quad)); names(df.quad) <- c("ngram", "freq")
-df.penta <- data.frame(cbind(names(freq_penta), freq_penta)); names(df.penta) <- c("ngram", "freq")
+df.one <- data.frame(cbind(names(f1), f1)); names(df.one) <- c("ngram", "freq")
+df.two <- data.frame(cbind(names(f2), f2)); names(df.two) <- c("ngram", "freq")
+df.tri <- data.frame(cbind(names(f3), f3)); names(df.tri) <- c("ngram", "freq")
+df.quad <- data.frame(cbind(names(f4), f4)); names(df.quad) <- c("ngram", "freq")
+df.penta <- data.frame(cbind(names(f5), f5)); names(df.penta) <- c("ngram", "freq")
 
 save(df.one, df.two, df.tri, df.quad, df.penta,
      f1, f2, f3, f4, f5,
