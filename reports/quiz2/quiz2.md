@@ -8,7 +8,7 @@ algorithm to predict the next word in the sentence.
 - cheese
 - soda
 
-2. ou're the reason why I smile everyday. Can you follow me please? It would
+2. You're the reason why I smile everyday. Can you follow me please? It would
 mean the
 
 - world

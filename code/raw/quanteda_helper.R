@@ -60,9 +60,9 @@ alphabet.ru <- c(stopwords("russian"),
                  "а","б","в","г","д","е","ё","ж","з","и","к","л","м","н",
                  "о","п","р","с","т","у","ф","х","ц","ч","ш","щ","ъ","ы","ь","э","ю","я")
 
-txt.blog <- getCorpus(blog.en, 100000, profanityWords.en)
-txt.news <- getCorpus(news.en, 100000, profanityWords.en)
-txt.twit <- getCorpus(twitter.en, 100000, profanityWords.en)
+txt.blog <- getCorpus(blog.en, 10000, profanityWords.en)
+txt.news <- getCorpus(news.en, 10000, profanityWords.en)
+txt.twit <- getCorpus(twitter.en, 10000, profanityWords.en)
 txt.en <- c(txt.blog, txt.news, txt.twit)
 
 # Save russian and english corpuses for future using
@@ -87,11 +87,11 @@ dfm_penta <- dfm(pentagrams, groups = NULL)
 save(tokens, unigrams, bigrams, trigrams, quadgrams, pentagrams,
      dfm_one,dfm_two,dfm_tri,dfm_quad,dfm_penta, file="data/tokens_dfm.Rda")
 
-freq_one <- sort(colSums(dfm_one), decreasing = TRUE)
-freq_two <- sort(colSums(dfm_two), decreasing = TRUE)
-freq_tri <- sort(colSums(dfm_tri), decreasing = TRUE)
-freq_quad  <- sort(colSums(dfm_quad),  decreasing = TRUE)
-freq_penta <- sort(colSums(dfm_penta), decreasing = TRUE)
+f1 <- sort(colSums(dfm_one), decreasing = TRUE)
+f2 <- sort(colSums(dfm_two), decreasing = TRUE)
+f3 <- sort(colSums(dfm_tri), decreasing = TRUE)
+f4  <- sort(colSums(dfm_quad),  decreasing = TRUE)
+f5 <- sort(colSums(dfm_penta), decreasing = TRUE)
 
 df.one <- data.frame(cbind(names(freq_one), freq_one)); names(df.one) <- c("ngram", "freq")
 df.two <- data.frame(cbind(names(freq_two), freq_two)); names(df.two) <- c("ngram", "freq")
@@ -100,17 +100,17 @@ df.quad <- data.frame(cbind(names(freq_quad), freq_quad)); names(df.quad) <- c("
 df.penta <- data.frame(cbind(names(freq_penta), freq_penta)); names(df.penta) <- c("ngram", "freq")
 
 save(df.one, df.two, df.tri, df.quad, df.penta,
-     freq_one, freq_two, freq_tri, freq_quad, freq_penta,
+     f1, f2, f3, f4, f5,
      tokens, unigrams, bigrams, trigrams, quadgrams, pentagrams,
      dfm_one,dfm_two,dfm_tri,dfm_quad,dfm_penta, file="data/freq_tokens_dfm.Rda")
 
 # wordcloud it
-library(wordcloud)
+#library(wordcloud)
 
-coverage50<-500
-wordcloud(names(freq), freq, scale=c(5,0.5), max.words=coverage50, 
-          random.order=FALSE, rot.per=0.5, use.r.layout=FALSE, 
-          colors=brewer.pal(8,"Dark2"))
+#coverage50<-500
+#wordcloud(names(freq), freq, scale=c(5,0.5), max.words=coverage50, 
+#          random.order=FALSE, rot.per=0.5, use.r.layout=FALSE, 
+#          colors=brewer.pal(8,"Dark2"))
 
 
 
