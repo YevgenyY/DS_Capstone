@@ -54,10 +54,49 @@ fwdw <- function(x, len) {
   if (size < len)
     return(NULL)
   res <- c()
-  j <- 1
+  j <- len
   for (i in 1:j) {
     res <- c(res,t[[1]][i])
   }
   return(paste(res, collapse = " "))
 }
+
+# normalizing
+# long algo
+normalize_freq <- function(freq) {
+  x<-freq
+  for (i in 1:length(x)) {
+    w1 <- fwdw(names(x[i]), 1)
+    total <- sum(ngram_mask(x, w1)) 
+    x[i] <- x[i] / total
+  }
+  return(x)  
+}
+# make an assumption that c(w1,*) =~ c(w1)
+normalize_2gram <- function() {
+  x<-f2
+  for (i in 1:length(x)) {
+    w1 <- fwdw(names(x[i]), 1)
+    total <- f1[paste(w1)]
+    x[i] <- x[i] / total
+    
+    if(i%%1000 == 0) print(i)
+    flush.console()
+  }
+  return(x)  
+}
+normalize_3gram <- function() {
+  x<-f3
+  for (i in 1:length(x)) {
+    w1 <- fwdw(names(x[i]), 2)
+    total <- f2[paste(w1)]
+    x[i] <- x[i] / total
+    
+    if(i%%1000 == 0) print(i)
+    flush.console()
+  }
+  return(x)  
+}
+
+
 
