@@ -73,6 +73,7 @@ txt.en <- c(txt.blog, txt.news, txt.twit)
 # Save russian and english corpuses for future using
 save(txt.en, file="data/txt.en.Rda")
 #save(txt.ru, file="data/txt.ru.Rda")
+load("data/txt.en.Rda")
 
 txt <- txt.en
 
@@ -84,7 +85,7 @@ trigrams <- ngrams(tokens, n=3, skip=0, concatenator = " ")
 quadgrams <- ngrams(tokens, n=4, skip=0, concatenator = " ")
 pentagrams <- ngrams(tokens, n=5, skip=0, concatenator = " ")
 
-dfm_one <- dfm(tokens, groups = NULL)
+dfm_one <- dfm(tokens, groups = NULL) 
 dfm_two <- dfm(bigrams, groups = NULL)
 dfm_tri <- dfm(trigrams, groups = NULL)
 dfm_quad <- dfm(quadgrams, groups = NULL)
@@ -98,7 +99,9 @@ f3 <- sort(colSums(dfm_tri), decreasing = TRUE)
 f4  <- sort(colSums(dfm_quad),  decreasing = TRUE)
 f5 <- sort(colSums(dfm_penta), decreasing = TRUE)
 
-save(f1, f2, f3, f4, f5, file="data/freq_tokens_dfm.Rda")
+N <- sum(ntoken(txt)) # corpus size
+V <- length(f1)  # vocabulary size
+save(f1, f2, f3, f4, f5, N, V, file="data/f12345.Rda")
 
 #df.one <- data.frame(cbind(names(f1), f1)); names(df.one) <- c("ngram", "freq")
 #df.two <- data.frame(cbind(names(f2), f2)); names(df.two) <- c("ngram", "freq")
@@ -106,10 +109,7 @@ save(f1, f2, f3, f4, f5, file="data/freq_tokens_dfm.Rda")
 #df.quad <- data.frame(cbind(names(f4), f4)); names(df.quad) <- c("ngram", "freq")
 #df.penta <- data.frame(cbind(names(f5), f5)); names(df.penta) <- c("ngram", "freq")
 
-save(df.one, df.two, df.tri, df.quad, df.penta,
-     f1, f2, f3, f4, f5,
-     tokens, unigrams, bigrams, trigrams, quadgrams, pentagrams,
-     dfm_one,dfm_two,dfm_tri,dfm_quad,dfm_penta, file="data/freq_tokens_dfm.Rda")
+#save(f1, f2, f3, f4, f5, file="data/freq_tokens_dfm.Rda")
 
 # wordcloud it
 #library(wordcloud)

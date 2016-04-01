@@ -9,12 +9,6 @@ profanityWords.en <- names(read.csv(url("http://www.bannedwordlist.com/lists/swe
 # return word #n-1
 wnm1 <- function(x) { return(strsplit(x, " ")[[1]][1]) }
 
-mle_bigram <- function(x1,x2) {
-  p <- freq_two[paste(x1,x2,sep=" ")] / freq_one[paste(x1)]
-  
-  return(p)
-}
-
 ngram_mask <- function(x, ngram) {
   pattern <- paste("^",ngram, sep = '')
   return(subset(x, grepl(paste(pattern), names(x))))
@@ -61,41 +55,27 @@ fwdw <- function(x, len) {
   return(paste(res, collapse = " "))
 }
 
-# normalizing
-# long algo
-normalize_freq <- function(freq) {
-  x<-freq
-  for (i in 1:length(x)) {
-    w1 <- fwdw(names(x[i]), 1)
-    total <- sum(ngram_mask(x, w1)) 
-    x[i] <- x[i] / total
-  }
-  return(x)  
+except_last_word <- function(x) { 
+  stopifnot(is.character (x))
+  stopifnot(length(x) == 1)
+  t <- unlist(strsplit(x, split=" "))
+  z <- t[1:length(t)-1]
+  return(paste(z, collapse = " "))
 }
-# make an assumption that c(w1,*) =~ c(w1)
-normalize_2gram <- function() {
-  x<-f2
-  for (i in 1:length(x)) {
-    w1 <- fwdw(names(x[i]), 1)
-    total <- f1[paste(w1)]
-    x[i] <- x[i] / total
-    
-    if(i%%1000 == 0) print(i)
-    flush.console()
+
+prepare_bi <- function(x) {
+  t <- toki(x)
+  len <- length(t[[1]])
+  mtx <- data.frame(matrix(0, nrow = len, ncol = len))
+  names(mtx) <- paste(t[[1]]); rownames(mtx) <- paste(t[[1]])
+  for (i in 1:len) {
+    for (j in 1:len) {
+      w1 <- t[[1]][i]
+      w2 <- t[[1]][j]
+      mtx[i,j] <- log(f2[paste(w1, w2, sep=" ")] / f1[w1])
+    }
   }
-  return(x)  
-}
-normalize_3gram <- function() {
-  x<-f3
-  for (i in 1:length(x)) {
-    w1 <- fwdw(names(x[i]), 2)
-    total <- f2[paste(w1)]
-    x[i] <- x[i] / total
-    
-    if(i%%1000 == 0) print(i)
-    flush.console()
-  }
-  return(x)  
+  mtx[is.na(mtx)] <- 0
 }
 
 
