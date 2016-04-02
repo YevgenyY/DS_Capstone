@@ -34,7 +34,7 @@ t <- parSapply(cl, tmp, function(x) {
 })
 tmp <- f1[t]; rm(t)
 tmp <- f2c/(tmp + V) # add-one smoothing
-pf2 <- data.frame(cbind(f2,tmp)); rm(tmp)
+pf2 <- data.frame(cbind(f2,tmp)); rm(tmp,f2c)
 names(pf2) <- c("f","p")
 save(pf2, file="data/add_one.pf2.Rda")
 
@@ -49,7 +49,7 @@ t <- parSapply(cl, tmp, function(x) {
 })
 tmp <- f2[t]; rm(t)
 tmp <- f3c/(tmp + V) # add-one smoothing
-pf3 <- data.frame(cbind(f3,tmp)); rm(tmp)
+pf3 <- data.frame(cbind(f3,tmp)); rm(tmp,f3c)
 names(pf3) <- c("f","p")
 save(pf3, file="data/add_one.pf3.Rda")
 
@@ -64,7 +64,7 @@ t <- parSapply(cl, tmp, function(x) {
 })
 tmp <- f3[t]; rm(t)
 tmp <- f4c/(tmp + V) # add-one smoothing
-pf4 <- data.frame(cbind(f4,tmp)); rm(tmp)
+pf4 <- data.frame(cbind(f4,tmp)); rm(tmp,f4c)
 names(pf4) <- c("f","p")
 save(pf4, file="data/add_one.pf4.Rda")
 
@@ -79,7 +79,7 @@ t <- parSapply(cl, tmp, function(x) {
 })
 tmp <- f4[t]; rm(t)
 tmp <- f5c/(tmp + V) # add-one smoothing
-pf5 <- data.frame(cbind(f5,tmp)); rm(tmp)
+pf5 <- data.frame(cbind(f5,tmp)); rm(tmp,f5c)
 names(pf5) <- c("f","p")
 save(pf5, file="data/add_one.pf5.Rda")
 

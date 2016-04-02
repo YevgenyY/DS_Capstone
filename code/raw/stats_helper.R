@@ -2,15 +2,20 @@ library(quanteda)
 
 setwd("~/Coursera/DS_Capstone/")
 
-alphabet.en <- c(stopwords("english"), 
-                 "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","q","p","r","s","t","u","v","w","x","y","z")
-profanityWords.en <- names(read.csv(url("http://www.bannedwordlist.com/lists/swearWords.csv")))
+#alphabet.en <- c(stopwords("english"), 
+#                 "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","q","p","r","s","t","u","v","w","x","y","z")
+#profanityWords.en <- names(read.csv(url("http://www.bannedwordlist.com/lists/swearWords.csv")))
 
 # return word #n-1
 wnm1 <- function(x) { return(strsplit(x, " ")[[1]][1]) }
 
 ngram_mask <- function(x, ngram) {
   pattern <- paste("^",ngram, sep = '')
+  return(subset(x, grepl(paste(pattern), names(x))))
+}
+
+ngram_mask_last <- function(x, ngram) {
+  pattern <- paste(ngram, '$', sep = '')
   return(subset(x, grepl(paste(pattern), names(x))))
 }
 
