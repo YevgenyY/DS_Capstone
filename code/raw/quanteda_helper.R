@@ -61,9 +61,9 @@ alphabet.ru <- c(stopwords("russian"),
                  "а","б","в","г","д","е","ё","ж","з","и","к","л","м","н",
                  "о","п","р","с","т","у","ф","х","ц","ч","ш","щ","ъ","ы","ь","э","ю","я")
 
-lines.blog <- round(getBasicStats(blog.en)[2]*0.25, 0)
-lines.news <- round(getBasicStats(news.en)[2]*0.25, 0)
-lines.twit <- round(getBasicStats(twit.en)[2]*0.25, 0)
+lines.blog <- round(getBasicStats(blog.en)[2]*0.1, 0)
+lines.news <- round(getBasicStats(news.en)[2]*0.1, 0)
+lines.twit <- round(getBasicStats(twit.en)[2]*0.1, 0)
 
 txt.blog <- getCorpus(blog.en, lines.blog, profanityWords.en)
 txt.news <- getCorpus(news.en, lines.news, profanityWords.en)
@@ -90,8 +90,8 @@ dfm_two <- dfm(bigrams, groups = NULL)
 dfm_tri <- dfm(trigrams, groups = NULL)
 dfm_quad <- dfm(quadgrams, groups = NULL)
 dfm_penta <- dfm(pentagrams, groups = NULL)
-save(tokens, unigrams, bigrams, trigrams, quadgrams, pentagrams,
-     dfm_one,dfm_two,dfm_tri,dfm_quad,dfm_penta, file="data/tokens_dfm.Rda")
+#save(tokens, unigrams, bigrams, trigrams, quadgrams, pentagrams,
+#     dfm_one,dfm_two,dfm_tri,dfm_quad,dfm_penta, file="data/tokens_dfm.Rda")
 
 f1 <- sort(colSums(dfm_one), decreasing = TRUE)
 f2 <- sort(colSums(dfm_two), decreasing = TRUE)
@@ -101,7 +101,7 @@ f5 <- sort(colSums(dfm_penta), decreasing = TRUE)
 
 N <- sum(ntoken(txt)) # corpus size
 V <- length(f1)  # vocabulary size
-save(f1, f2, f3, f4, f5, N, V, file="data/f12345.Rda")
+save(f1, f2, f3, f4, f5, N, V, file="data/f12345small.Rda")
 
 #df.one <- data.frame(cbind(names(f1), f1)); names(df.one) <- c("ngram", "freq")
 #df.two <- data.frame(cbind(names(f2), f2)); names(df.two) <- c("ngram", "freq")
