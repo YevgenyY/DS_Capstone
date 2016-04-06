@@ -61,9 +61,9 @@ alphabet.ru <- c(stopwords("russian"),
                  "а","б","в","г","д","е","ё","ж","з","и","к","л","м","н",
                  "о","п","р","с","т","у","ф","х","ц","ч","ш","щ","ъ","ы","ь","э","ю","я")
 
-lines.blog <- round(getBasicStats(blog.en)[2]*0.1, 0)
-lines.news <- round(getBasicStats(news.en)[2]*0.1, 0)
-lines.twit <- round(getBasicStats(twit.en)[2]*0.1, 0)
+lines.blog <- round(getBasicStats(blog.en)[2] * 1, 0)
+lines.news <- round(getBasicStats(news.en)[2] * 1, 0)
+lines.twit <- round(getBasicStats(twit.en)[2] * 1, 0)
 
 txt.blog <- getCorpus(blog.en, lines.blog, profanityWords.en)
 txt.news <- getCorpus(news.en, lines.news, profanityWords.en)

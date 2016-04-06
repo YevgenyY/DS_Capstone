@@ -2,9 +2,10 @@ library(quanteda)
 
 setwd("~/Coursera/DS_Capstone/")
 
-#alphabet.en <- c(stopwords("english"), 
-#                 "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","q","p","r","s","t","u","v","w","x","y","z")
-#profanityWords.en <- names(read.csv(url("http://www.bannedwordlist.com/lists/swearWords.csv")))
+profanityWords.en <- names(read.csv(url("http://www.bannedwordlist.com/lists/swearWords.csv")))
+stop_words<- c(stopwords("english"), 
+                 "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","q","p","r","s","t","u","v","w","x","y","z", profanityWords.en)
+rm(profanityWords.en)
 
 # return word #n-1
 wnm1 <- function(x) { return(strsplit(x, " ")[[1]][1]) }
@@ -27,9 +28,25 @@ toki <- function(raw) {
   raw <- tolower(raw)
   
   tokens <- tokenize(raw, simplify=FALSE)
-  tokens <- removeFeatures(tokens, c(stopwords("english"), "will", "ass", alphabet.en, profanityWords.en))
+  tokens <- removeFeatures(tokens, c(stopwords("english"), "will", "ass", stop_words))
   
   return(tokens)  
+}
+
+tokis <- function(raw) {
+  raw <- gsub("[^[:alnum:][:space:]']", ' ', raw)
+  raw <- gsub('[[:digit:]]+', ' ', raw)
+  raw <- gsub('[[:punct:]]+', '', raw)
+  raw <- gsub('[\n]+', '', raw)
+  raw <- tolower(raw)
+  
+  '%nin%' <- Negate('%in%')
+  out <- lapply(raw, function(x) {
+    t <- unlist(strsplit(x, " "))
+    t[t %nin% stop_words]
+  })
+  out <- unlist(out) 
+  return(out[lapply(out,nchar)>0])
 }
 
 # Get last "len" words from "x"
