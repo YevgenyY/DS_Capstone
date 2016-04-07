@@ -42,6 +42,7 @@ f24$c <- as.numeric(as.character(f24$c))
 
 save(f22,f23,f24, file="data/f22_23_24.Rda")
 
+q1 <- "The guy in front of me just bought a pound of bacon, a bouquet, and a case of"
 my.predict <- function(q) {
   t <- tokis(q)
   len = length(t)
@@ -50,20 +51,47 @@ my.predict <- function(q) {
   Wi2 <- t[len-2]
   Wi3 <- t[len-3]
   Wi4 <- t[len-4]
-  
-  paste(Wi4,Wi3,Wi2,Wi1,Wi, collapse = " ")
-  sWi2 <- f22[f22$first==Wi,]
-  sWi3 <- f23[f23$first==Wi,]
-  sWi4 <- f24[f24$first==Wi,]
-  tWi <- intersect(s2$last,s3$last)
-  tWi <- intersect(tWi,sWi4$last)
 
-  sW12 <- f22[f22$first==Wi1,]
-  sW13 <- f23[f23$first==Wi1,]
-  sW14 <- f24[f24$first==Wi1,]
-  tWi1 <- intersect(sW12$last,sW13$last)
-  tWi1 <- intersect(tWi1,sW14$last)
+    
+  paste(Wi4,Wi3,Wi2,Wi1,Wi, collapse = " ")
+  ai <- f22[f22$first==Wi,]
+  ai1 <- f22[f22$first==Wi1,]
+  ai2 <- f22[f22$first==Wi2,]
+  ai3 <- f22[f22$first==Wi3,]
+  ai4 <- f22[f22$first==Wi4,]
   
+  i1 <- intersect(ai$last,ai1$last)
+  i2 <- intersect(ai$last,ai2$last)
+  i3 <- intersect(ai$last,ai3$last)
+  i4 <- intersect(ai$last,ai4$last)
+  
+  i11 <- intersect(i1,i2)
+  i12 <- intersect(i1,i3)
+  i13 <- intersect(i1,i4)
+  
+  intersect(i1,i2)
+  
+  #r3 <- f23[f23$first==Wi,]
+  #r4 <- f24[f24$first==Wi,]
+  #rw1 <- intersect(r2$last,r3$last)
+  #rw1 <- intersect(rw1,r4$last)
+  
+  b2 <- f22[f22$first==Wi1,]
+  #r3 <- f23[f23$first==Wi1,]
+  #r4 <- f24[f24$first==Wi1,]
+  #rw2 <- intersect(r2$last,r3$last); rw2 <- intersect(rw2,r4$last)
+  
+  a2<-r2[r2$last %in% rw1,]
+  a3<-r3[r3$last %in% rw1,]
+  a4<-r4[r4$last %in% rw1,]
+  a2 <- rbind(a,b,c)
+  tmp<-aggregate(c ~ last, data=a2,FUN=sum)
+    
+  b2 <- f22[f22$first==Wi2,]
+  #b3 <- f23[f23$first==Wi2,]
+  #b4 <- f24[f24$first==Wi2,]
+  #rw3 <- intersect(r2$last,r3$last)
+  #rw3 <- intersect(rw3,r4$last)
   
 }
 
