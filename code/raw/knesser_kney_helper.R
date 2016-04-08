@@ -15,6 +15,13 @@ load(file="data/f12345.Rda")
 #t <- sapply(strsplit(names(f4), ' '), function(x) paste(x[1],x[4],collapse = ' '))
 #f23 <- f4; names(f23)<-t
 
+# calculate f21
+first <- sapply(strsplit(names(f2), ' '), function(x) return(x[1]))
+last <- sapply(strsplit(names(f2), ' '), function(x) return(x[2]))
+f21 <- data.frame(cbind(f2,first,last))
+names(f21) <- c("c", "first","last");  rownames(f21) <- NULL # save our memory
+f21$c <- as.numeric(as.character(f21$c))
+
 # calculate f22
 first <- sapply(strsplit(names(f3), ' '), function(x) return(x[1]))
 last <- sapply(strsplit(names(f3), ' '), function(x) return(x[3]))
@@ -40,7 +47,8 @@ f24$c <- as.numeric(as.character(f24$c))
 #f24 <- f5; names(f24)<-t
 #which(names(f24) %in% "case beer") # check the answer
 
-save(f22,f23,f24, file="data/f22_23_24.Rda")
+save(f21,f22,f23,f24, file="data/f21_22_23_24.Rda")
+ 
 
 q1 <- "The guy in front of me just bought a pound of bacon, a bouquet, and a case of"
 my.predict <- function(q) {
@@ -95,7 +103,63 @@ my.predict <- function(q) {
   
 }
 
- ptm <- proc.time()
+q1<-"The guy in front of me just bought a pound of bacon, a bouquet, and a case of"
+# Calculate M1 of Knesser-Ney smoothing
+W<-f21[f21$first=="case",]
+rownames(W)<-NULL
+N <- sum(W$c)
+x <- W$c/N
+M1 <- cbind(W,x)
+
+# find W
+W<-f22[f22$first=="case",]
+W<-aggregate(c ~ last,data=W,FUN=sum)
+W[W$last=="beer",]
+W<-W[order(-W$c),]
+length(W$last)
+
+# find normalization value
+a <- aggregate(c ~ last,data=f22,FUN=sum)
+for (i in 1:length(W$last)) {
+  # x[i] <- sum(f22[f22$last==W$last[i],]$c)
+  x[i] <- W$c[i]/sum(a[a$last==W$last[i],]$c)
+}
+M2 <- cbind(W,x)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ptm <- proc.time()
 Cc <- f22[f22$first=="nice",]
 proc.time()-ptm
 
