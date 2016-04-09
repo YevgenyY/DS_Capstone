@@ -52,6 +52,42 @@ full_intersect <- function(x) {
   return(full_is)
 }
 
+full_join <- function(x) {
+  ai1 <- as.character(f21[f21$first==x,"last"])
+  ai2 <- as.character(f22[f22$first==x,"last"])
+  ai3 <- as.character(f23[f23$first==x,"last"])
+  ai4 <- as.character(f24[f24$first==x,"last"])
+  
+  jn <- unique(c(ai1,ai2,ai3,ai4)); print(length(jn))
+  
+  return(jn)
+}
+
+try.join.intersect <- function(x,y) {
+  sentence <- tokis(x)
+
+  # joint intersection
+  jis <- c()
+  for (i in 0:4) {
+    w <- sentence[length(sentence)-i]
+    if (i==0) {
+      jis <- full_join(w)
+    } else {
+      t <- full_join(w)
+      jis <- intersect(jis, t)
+    }
+  }
+  for(i in 1:length(y)) {
+    out <- paste(y[i], sum(grepl(y[i], jis)), collapse = ":")
+    print(out)
+  }
+  
+  out <- paste("Join-intersect length", length(jis), collapse = " ")
+  print(out)
+  
+  return(jis)
+}
+
 try.intersect <- function(x,y) {
   
   sentence <- tokis(x)
