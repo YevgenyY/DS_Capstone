@@ -46,9 +46,13 @@ f24$c <- as.numeric(as.character(f24$c))
 #t <- sapply(strsplit(names(f5), ' '), function(x) paste(x[1],x[5],collapse = ' '))
 #f24 <- f5; names(f24)<-t
 #which(names(f24) %in% "case beer") # check the answer
+t <- aggregate(c ~ first+last, data=f21,FUN=sum); f21 <- t[order(-t$c),]
+t <- aggregate(c ~ first+last, data=f22,FUN=sum); f22 <- t[order(-t$c),]
+t <- aggregate(c ~ first+last, data=f23,FUN=sum); f23 <- t[order(-t$c),]
+t <- aggregate(c ~ first+last, data=f24,FUN=sum); f24 <- t[order(-t$c),]
 
 save(f21,f22,f23,f24, file="data/f21_22_23_24.Rda")
- 
+#load("data/f21_22_23_24.Rda")
 
 q1 <- "The guy in front of me just bought a pound of bacon, a bouquet, and a case of"
 my.predict <- function(q) {
