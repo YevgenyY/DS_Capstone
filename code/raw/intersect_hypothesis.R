@@ -121,6 +121,8 @@ try.intersect.join <- function(x,y) {
   
   # summarize the counts
   jis <- aggregate(c ~ first+last, data=jis,FUN=sum);
+  jis <- jis[order(-jis$c),]
+  rownames(jis) <- NULL
   res <- c(rep(0,length(y))); 
   names(res) <- y;
   
@@ -156,6 +158,9 @@ try.intersect.join <- function(x,y) {
   
   
   out <- paste("Full intersect area length:", length(jis$last), collapse = " ")
+  print(out)
+  jis <- aggregate(c ~ last, data=jis,FUN=sum); rownames(jis)<-NULL
+  out <- paste("Winner index in intersect area is:", rownames(fg(win, jis)))
   print(out)
   
   return(jis)
