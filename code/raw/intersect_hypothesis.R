@@ -121,7 +121,8 @@ try.intersect.join <- function(x,y) {
   
   # summarize the counts
   jis <- aggregate(c ~ first+last, data=jis,FUN=sum);
-  res <- c()
+  res <- c(rep(0,length(y))); 
+  names(res) <- y;
   
   # print the result
   for(i in 1:length(y)) {
@@ -131,7 +132,22 @@ try.intersect.join <- function(x,y) {
       out <- paste(y[i], sum(t$c), collapse = ":")
       print(out)
       e <- c(sum(t$c)); names(e) <- t$last[1]
-      res <- c(res,e)
+      res[i] <- e
+    }
+  }
+  
+  print(res)
+  
+  # Add f2 coeff, i.e "case beer"
+  coef <- 10
+  bias <- 0.001
+  for (i in 1:length(res)) {
+    bigram <- paste(wi,names(res)[i], collapse = " ")
+    if (!is.na(f2[bigram])) {
+      if(res[i] == 0) { res[i] <- bias }
+      res[i] <- res[i] * coef
+      out <- paste("Rewarding \"", bigram, "\"multiplying by", coef, "=", res[i], collapse = " ")
+      print(out)
     }
   }
   win <- names(res)[match(max(res),res)]
