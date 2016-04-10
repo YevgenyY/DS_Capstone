@@ -30,10 +30,11 @@ paste(Wi4,Wi3,Wi2,Wi1,Wi, collapse = " ")
 x <- Wi
 
 full_intersect <- function(x) {
-  ai1 <- f21[f21$first==x,]
-  ai2 <- f22[f22$first==x,]
-  ai3 <- f23[f23$first==x,]
-  ai4 <- f24[f24$first==x,]
+  coeff <- c(1, 0.1, 0.02, 0.03)
+  ai1 <- f21[f21$first==x,]; ai1$c <- ai1$c * coeff[1]
+  ai2 <- f22[f22$first==x,]; ai2$c <- ai2$c * coeff[2]
+  ai3 <- f23[f23$first==x,]; ai3$c <- ai3$c * coeff[3]
+  ai4 <- f24[f24$first==x,]; ai4$c <- ai4$c * coeff[4]
   
   is12 <- intersect(ai1$last,ai2$last); length(is12)
   is13 <- intersect(ai1$last,ai3$last); length(is13)
@@ -49,7 +50,18 @@ full_intersect <- function(x) {
   a <- intersect(a, is23); a <- intersect(a, is24)
   full_is <- intersect(a, is34) 
   
-  return(full_is)
+  all <- rbind(ai1,ai2,ai3,ai4)
+  if(length(all$c) > 0) {
+    t <- aggregate(c ~ first+last, data=all,FUN=sum); 
+    rm(all)
+  
+    out <- t[t$last %in% full_is,]
+    out$c <- out$c / f1[x]
+    out <- out[order(-out$c),]
+  } else
+    out <- NULL
+  
+  return( out )
 }
 
 full_join <- function(x) {
@@ -100,21 +112,34 @@ try.intersect.join <- function(x,y) {
   wi4 <- sentence[length(sentence)-4]
   paste(wi4,wi3,wi2,wi1,wi, collapse = " ")
   
-  # joint intersection
-  jis <- c()
+  # make intersection and then join the results
+  jis <- data.frame()
   
   for (i in 0:4) {
-    jis <- c(jis,full_intersect(sentence[length(sentence)-i]))
+    jis <- rbind(jis,full_intersect(sentence[length(sentence)-i]))
   }
   
+  # summarize the counts
+  jis <- aggregate(c ~ first+last, data=jis,FUN=sum);
+  res <- c()
+  
+  # print the result
   for(i in 1:length(y)) {
-    out <- paste(y[i], sum(grepl(y[i], jis)), collapse = ":")
-    print(out)
+    t <- fg(y[i], jis)
+    if(length(t$c > 0)) {
+      print(t)
+      out <- paste(y[i], sum(t$c), collapse = ":")
+      print(out)
+      e <- c(sum(t$c)); names(e) <- t$last[1]
+      res <- c(res,e)
+    }
   }
+  win <- names(res)[match(max(res),res)]
+  out <- paste("The winner: ", win, res[win])
+  print(out)
   
-  jis <- unique(jis)
   
-  out <- paste("Full intersect area length:", length(jis), collapse = " ")
+  out <- paste("Full intersect area length:", length(jis$last), collapse = " ")
   print(out)
   
   return(jis)
