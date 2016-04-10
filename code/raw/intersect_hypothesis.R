@@ -53,14 +53,16 @@ full_intersect <- function(x) {
 }
 
 full_join <- function(x) {
-  ai1 <- as.character(f21[f21$first==x,"last"])
-  ai2 <- as.character(f22[f22$first==x,"last"])
-  ai3 <- as.character(f23[f23$first==x,"last"])
-  ai4 <- as.character(f24[f24$first==x,"last"])
+  ai1 <- as.character(f21[f21$first==x,]$last); print(length(ai1))
+  ai2 <- as.character(f22[f22$first==x,]$last); print(length(ai2))
+  ai3 <- as.character(f23[f23$first==x,]$last); print(length(ai3))
+  ai4 <- as.character(f24[f24$first==x,]$last); print(length(ai4))
   
-  jn <- unique(c(ai1,ai2,ai3,ai4)); print(length(jn))
+  full_join <- unique(c(ai1,ai2,ai3,ai4))
   
-  return(jn)
+  print(length(full_join))
+  
+  return(full_join)
 }
 
 try.join.intersect <- function(x,y) {
@@ -88,7 +90,7 @@ try.join.intersect <- function(x,y) {
   return(jis)
 }
 
-try.intersect <- function(x,y) {
+try.intersect.join <- function(x,y) {
   
   sentence <- tokis(x)
   wi <- sentence[length(sentence)]
