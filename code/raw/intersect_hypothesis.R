@@ -112,6 +112,7 @@ try.intersect.join <- function(x,y) {
     print(out)
   }
   
+  jis <- unique(jis)
   
   out <- paste("Full intersect area length:", length(jis), collapse = " ")
   print(out)
