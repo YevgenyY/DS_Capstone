@@ -20,3 +20,28 @@ a7 <- c('years', 'thing' ,'time', 'weeks') # time
 a8 <- c('eyes','toes', 'fingers' ,'ears') # fingers
 a9 <- c('sad', 'bad', 'hard', 'worse') # bad
 a10 <- c('asleep', 'callous', 'insensitive', 'insane') # insane 
+
+q21 <- "When you breathe, I want to be the air for you. I'll be there for you, I'd live and I'd"
+q22 <- "Guy at my table's wife got up to go to the bathroom and I asked about dessert and he started telling me about his"
+q23 <- "I'd give anything to see arctic monkeys this"
+q24 <- "Talking to your mom has the same effect as a hug and helps reduce your"
+q25 <- "When you were in Holland you were like 1 inch away from me but you hadn't time to take a"
+q26 <- "I'd just like all of these questions answered, a presentation of evidence, and a jury to settle the"
+q27 <- "I can't deal with unsymetrical things. I can't even hold an uneven number of bags of groceries in each "
+q28 <- "Every inch of you is perfect from the bottom to the"
+q29 <- "I’m thankful my childhood was filled with imagination and bruises from playing"
+q20 <- "I like how the same people are in almost all of Adam Sandler's"
+
+a21 <- c('give','die','sleep','eat') # die
+a22 <- c('financial', 'spiritual','marital','horticultural') # marital
+a23 <- c('month','morning', 'weekend', 'decade') # weekend
+a24 <- c('happiness', 'stress', 'sleepiness', 'hunger') # stress
+a25 <- c('minute','picture','walk','look') # look
+a26 <- c('incident', 'matter', 'account', 'case') # matter
+a27 <- c('hand', 'finger' ,'arm', 'toe') # hand
+a28 <- c('side','top', 'middle' ,'center') # top
+a29 <- c('inside', 'weekly', 'outside', 'daily') # outside
+a20 <- c('movies', 'stories', 'novels', 'pictures') # movies
+
+
+
