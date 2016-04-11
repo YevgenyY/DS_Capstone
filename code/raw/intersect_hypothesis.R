@@ -26,8 +26,6 @@ load("data/f21_22_23_24.Rda")
 
 fg <- function(x, y) {  y[y[,"last"]==x,] }  
 # Try intersect Wi as Wi-1,Wi-2, Wi-3, Wi-4  
-paste(Wi4,Wi3,Wi2,Wi1,Wi, collapse = " ")
-x <- Wi
 
 full_intersect <- function(x) {
   coeff <- c(1, 0.1, 0.02, 0.03)
@@ -105,6 +103,7 @@ try.join.intersect <- function(x,y) {
 try.intersect.join <- function(x,y) {
   
   sentence <- tokis(x)
+  sentence <-sentence [! sentence %in% c("id","ill") ]
   wi <- sentence[length(sentence)]
   wi1 <- sentence[length(sentence)-1]
   wi2 <- sentence[length(sentence)-2]
@@ -147,7 +146,7 @@ try.intersect.join <- function(x,y) {
     bigram <- paste(wi,names(res)[i], collapse = " ")
     if (!is.na(f2[bigram])) {
       if(res[i] == 0) { res[i] <- bias }
-      res[i] <- res[i] * coef
+      res[i] <- res[i] * coef * f2[bigram]
       out <- paste("Rewarding \"", bigram, "\"multiplying by", coef, "=", res[i], collapse = " ")
       print(out)
     }
