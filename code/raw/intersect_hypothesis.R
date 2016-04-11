@@ -103,7 +103,7 @@ try.join.intersect <- function(x,y) {
 try.intersect.join <- function(x,y) {
   
   sentence <- tokis(x)
-  sentence <-sentence [! sentence %in% c("id","ill") ]
+  #sentence <-sentence [! sentence %in% c("id","ill") ]
   wi <- sentence[length(sentence)]
   wi1 <- sentence[length(sentence)-1]
   wi2 <- sentence[length(sentence)-2]
