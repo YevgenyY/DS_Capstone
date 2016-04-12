@@ -163,7 +163,7 @@ try.intersect.join <- function(x,y) {
   out <- paste("Winner index in intersect area is:", rownames(fg(win, jis)))
   print(out)
   
-  return(jis)
+  return(jis) 
 }
 
 
