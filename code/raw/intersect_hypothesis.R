@@ -150,7 +150,7 @@ try.intersect.join <- function(x,y) {
       if (!is.na(f2[bigram])) {
         if(res[i] == 0) { res[i] <- bias }
         res[i] <- res[i] * coef * f2[bigram]
-        out <- paste("Rewarding \"", bigram, "\"multiplying by", coef[1], "=", res[i], collapse = " ")
+        out <- paste("Rewarding \"", bigram, "\"multiplying by", coef, "=", res[i], collapse = " ")
         print(out)
       }
   }
