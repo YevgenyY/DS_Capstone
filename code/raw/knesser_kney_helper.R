@@ -23,21 +23,21 @@ names(f21) <- c("c", "first","last");  rownames(f21) <- NULL # save our memory
 f21$c <- as.numeric(as.character(f21$c))
 
 # calculate f22
-first <- sapply(strsplit(names(f3), ' '), function(x) return(x[1]))
+first <- sapply(strsplit(names(f3), ' '), function(x) return(x[2]))
 last <- sapply(strsplit(names(f3), ' '), function(x) return(x[3]))
 f22 <- data.frame(cbind(f3,first,last))
 names(f22) <- c("c", "first","last");  rownames(f22) <- NULL # save our memory
 f22$c <- as.numeric(as.character(f22$c))
 
 # calculate f23
-first <- sapply(strsplit(names(f4), ' '), function(x) return(x[1]))
+first <- sapply(strsplit(names(f4), ' '), function(x) return(x[3]))
 last <- sapply(strsplit(names(f4), ' '), function(x) return(x[4]))
 f23 <- data.frame(cbind(f4,first,last))
 names(f23) <- c("c", "first","last");  rownames(f23) <- NULL # save our memory
 f23$c <- as.numeric(as.character(f23$c))
 
 # calculate f24
-first <- sapply(strsplit(names(f5), ' '), function(x) return(x[1]))
+first <- sapply(strsplit(names(f5), ' '), function(x) return(x[4]))
 last <- sapply(strsplit(names(f5), ' '), function(x) return(x[5]))
 f24 <- data.frame(cbind(f5,first,last))
 names(f24) <- c("c", "first","last");  rownames(f24) <- NULL # save our memory
@@ -53,6 +53,40 @@ t <- aggregate(c ~ first+last, data=f24,FUN=sum); f24 <- t[order(-t$c),]
 
 save(f21,f22,f23,f24, file="data/f21_22_23_24.Rda")
 #load("data/f21_22_23_24.Rda")
+
+# calculate f31
+first <- sapply(strsplit(names(f3), ' '), function(x) return(x[1]))
+second <- sapply(strsplit(names(f3), ' '), function(x) return(x[2]))
+last <- sapply(strsplit(names(f3), ' '), function(x) return(x[3]))
+f31 <- data.frame(cbind(f3,first,second,last))
+names(f31) <- c("c", "first", "second", "last");  rownames(f31) <- NULL # save our memory
+f31$c <- as.numeric(as.character(f31$c))
+
+# calculate f32
+first <- sapply(strsplit(names(f4), ' '), function(x) return(x[1]))
+second <- sapply(strsplit(names(f4), ' '), function(x) return(x[3]))
+last <- sapply(strsplit(names(f4), ' '), function(x) return(x[4]))
+f32 <- data.frame(cbind(f4,first,second,last))
+names(f32) <- c("c", "first", "second", "last");  rownames(f32) <- NULL # save our memory
+f32$c <- as.numeric(as.character(f32$c))
+
+# calculate f33
+first <- sapply(strsplit(names(f5), ' '), function(x) return(x[1]))
+second <- sapply(strsplit(names(f5), ' '), function(x) return(x[4]))
+last <- sapply(strsplit(names(f5), ' '), function(x) return(x[5]))
+f33 <- data.frame(cbind(f5,first,second,last))
+names(f33) <- c("c", "first","last");  rownames(f33) <- NULL # save our memory
+f33$c <- as.numeric(as.character(f33$c))
+
+#t <- sapply(strsplit(names(f5), ' '), function(x) paste(x[1],x[5],collapse = ' '))
+#f24 <- f5; names(f24)<-t
+#which(names(f24) %in% "case beer") # check the answer
+t <- aggregate(c ~ first+second+last, data=f31,FUN=sum); f31 <- t[order(-t$c),]
+t <- aggregate(c ~ first+second+last, data=f32,FUN=sum); f32 <- t[order(-t$c),]
+t <- aggregate(c ~ first+second+last, data=f33,FUN=sum); f33 <- t[order(-t$c),]
+
+
+save(f21,f22,f23,f24,f31,f32,f33, file="data/f21_22_23_24_31_32_33_34.Rda")
 
 q1 <- "The guy in front of me just bought a pound of bacon, a bouquet, and a case of"
 my.predict <- function(q) {

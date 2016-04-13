@@ -140,17 +140,20 @@ try.intersect.join <- function(x,y) {
   print(res)
   
   # Add f2 coeff, i.e "case beer"
-  coef <- 10
+  coef <- c(10,5)
   bias <- 0.001
   for (i in 1:length(res)) {
-    bigram <- paste(wi,names(res)[i], collapse = " ")
-    if (!is.na(f2[bigram])) {
-      if(res[i] == 0) { res[i] <- bias }
-      res[i] <- res[i] * coef * f2[bigram]
-      out <- paste("Rewarding \"", bigram, "\"multiplying by", coef, "=", res[i], collapse = " ")
-      print(out)
-    }
+      last <- names(res)[i]
+      bigram <- paste(first, last, collapse = " ")
+    
+      if (!is.na(f2[bigram])) {
+        if(res[i] == 0) { res[i] <- bias }
+        res[i] <- res[i] * coef * f2[bigram]
+        out <- paste("Rewarding \"", bigram, "\"multiplying by", coef[1], "=", res[i], collapse = " ")
+        print(out)
+      }
   }
+  
   win <- names(res)[match(max(res),res)]
   out <- paste("The winner: ", win, res[win])
   print(out)

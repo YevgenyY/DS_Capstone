@@ -43,5 +43,9 @@ a28 <- c('side','top', 'middle' ,'center') # top
 a29 <- c('inside', 'weekly', 'outside', 'daily') # outside
 a20 <- c('movies', 'stories', 'novels', 'pictures') # movies
 
+q31 <- "Great talking to you guys"
+q32 <- "Looking forward to your piece next" # week
+q33 <- "Thanks for dropping by" #yesterday
+
 
 
