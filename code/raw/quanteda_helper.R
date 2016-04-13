@@ -61,9 +61,9 @@ alphabet.ru <- c(stopwords("russian"),
                  "а","б","в","г","д","е","ё","ж","з","и","к","л","м","н",
                  "о","п","р","с","т","у","ф","х","ц","ч","ш","щ","ъ","ы","ь","э","ю","я")
 
-lines.blog <- round(getBasicStats(blog.en)[2] * 1, 0)
-lines.news <- round(getBasicStats(news.en)[2] * 1, 0)
-lines.twit <- round(getBasicStats(twit.en)[2] * 1, 0)
+lines.blog <- round(getBasicStats(blog.en)[2] * 0.25, 0)
+lines.news <- round(getBasicStats(news.en)[2] * 0.25, 0)
+lines.twit <- round(getBasicStats(twit.en)[2] * 0.25, 0)
 
 txt.blog <- getCorpus(blog.en, lines.blog, profanityWords.en)
 txt.news <- getCorpus(news.en, lines.news, profanityWords.en)
@@ -78,7 +78,7 @@ load("data/txt.en.Rda")
 txt <- txt.en
 
 tokens <- tokenize(txt, simplify=FALSE)
-tokens <- removeFeatures(tokens, c(stopwords("english"), "will", "ass", alphabet.en, profanityWords.en))
+tokens <- removeFeatures(tokens, c(stopwords("english"), "will", "ass", "ill", "id", alphabet.en, profanityWords.en))
 unigrams <- ngrams(tokens, n=1, skip=0, concatenator = " ")
 bigrams <- ngrams(tokens, n=2, skip=0, concatenator = " ")
 trigrams <- ngrams(tokens, n=3, skip=0, concatenator = " ")
@@ -101,7 +101,7 @@ f5 <- sort(colSums(dfm_penta), decreasing = TRUE)
 
 N <- sum(ntoken(txt)) # corpus size
 V <- length(f1)  # vocabulary size
-save(f1, f2, f3, f4, f5, N, V, file="data/f12345small.Rda")
+save(f1, f2, f3, f4, f5, N, V, file="data/f12345.Rda")
 
 #df.one <- data.frame(cbind(names(f1), f1)); names(df.one) <- c("ngram", "freq")
 #df.two <- data.frame(cbind(names(f2), f2)); names(df.two) <- c("ngram", "freq")

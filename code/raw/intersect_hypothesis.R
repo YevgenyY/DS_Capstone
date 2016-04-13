@@ -53,7 +53,7 @@ full_intersect <- function(x) {
     t <- aggregate(c ~ first+last, data=all,FUN=sum); 
     rm(all)
   
-    out <- t[t$last %in% full_is,]
+    out <- t # t[t$last %in% full_is,]
     out$c <- out$c / f1[x]
     out <- out[order(-out$c),]
   } else
