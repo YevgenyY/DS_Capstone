@@ -140,9 +140,9 @@ try.intersect.join <- function(x,y) {
   print(res)
   
   # Add f2 coeff, i.e "case beer"
-  coef <- c(10,5)
+  coef <- 10
   bias <- 0.001
-  first <- sentence(length(sentence))
+  first <- sentence[length(sentence)]
   for (i in 1:length(res)) {
       last <- names(res)[i]
       bigram <- paste(first, last, collapse = " ")
@@ -158,7 +158,6 @@ try.intersect.join <- function(x,y) {
   win <- names(res)[match(max(res),res)]
   out <- paste("The winner: ", win, res[win])
   print(out)
-  
   
   out <- paste("Full intersect area length:", length(jis$last), collapse = " ")
   print(out)
