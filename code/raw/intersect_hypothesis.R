@@ -142,6 +142,7 @@ try.intersect.join <- function(x,y) {
   # Add f2 coeff, i.e "case beer"
   coef <- c(10,5)
   bias <- 0.001
+  first <- ssentence(length(sentence))
   for (i in 1:length(res)) {
       last <- names(res)[i]
       bigram <- paste(first, last, collapse = " ")
