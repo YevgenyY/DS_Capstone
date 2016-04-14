@@ -23,21 +23,21 @@ names(f21) <- c("c", "first","last");  rownames(f21) <- NULL # save our memory
 f21$c <- as.numeric(as.character(f21$c))
 
 # calculate f22
-first <- sapply(strsplit(names(f3), ' '), function(x) return(x[2]))
+first <- sapply(strsplit(names(f3), ' '), function(x) return(x[1]))
 last <- sapply(strsplit(names(f3), ' '), function(x) return(x[3]))
 f22 <- data.frame(cbind(f3,first,last))
 names(f22) <- c("c", "first","last");  rownames(f22) <- NULL # save our memory
 f22$c <- as.numeric(as.character(f22$c))
 
 # calculate f23
-first <- sapply(strsplit(names(f4), ' '), function(x) return(x[3]))
+first <- sapply(strsplit(names(f4), ' '), function(x) return(x[1]))
 last <- sapply(strsplit(names(f4), ' '), function(x) return(x[4]))
 f23 <- data.frame(cbind(f4,first,last))
 names(f23) <- c("c", "first","last");  rownames(f23) <- NULL # save our memory
 f23$c <- as.numeric(as.character(f23$c))
 
 # calculate f24
-first <- sapply(strsplit(names(f5), ' '), function(x) return(x[4]))
+first <- sapply(strsplit(names(f5), ' '), function(x) return(x[1]))
 last <- sapply(strsplit(names(f5), ' '), function(x) return(x[5]))
 f24 <- data.frame(cbind(f5,first,last))
 names(f24) <- c("c", "first","last");  rownames(f24) <- NULL # save our memory
