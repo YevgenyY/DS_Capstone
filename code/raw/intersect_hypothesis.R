@@ -28,7 +28,7 @@ fg <- function(x, y) {  y[y[,"last"]==x,] }
 # Try intersect Wi as Wi-1,Wi-2, Wi-3, Wi-4  
 
 full_intersect <- function(x) {
-  coeff <- c(1, 0.1, 0.02, 0.03)
+  coeff <- c(1, 0.1, 0.03, 0.02)
   ai1 <- f21[f21$first==x,]; ai1$c <- ai1$c * coeff[1]
   ai2 <- f22[f22$first==x,]; ai2$c <- ai2$c * coeff[2]
   ai3 <- f23[f23$first==x,]; ai3$c <- ai3$c * coeff[3]

@@ -54,12 +54,9 @@ twit.en="data/final/en_US/en_US.twitter.txt"
 profanityWords.en <- names(read.csv(url("http://www.bannedwordlist.com/lists/swearWords.csv")))
 #profanityWords.ru <- names(read.csv("data/profanity_russian.txt"))
 
-alphabet.en <- c(stopwords("english"), 
-                 "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","q","p","r","s","t","u","v","w","x","y","z")
+alphabet.en <- c(stopwords("english"), "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","q","p","r","s","t","u","v","w","x","y","z")
 
-alphabet.ru <- c(stopwords("russian"),
-                 "а","б","в","г","д","е","ё","ж","з","и","к","л","м","н",
-                 "о","п","р","с","т","у","ф","х","ц","ч","ш","щ","ъ","ы","ь","э","ю","я")
+alphabet.ru <- c(stopwords("russian"), "а","б","в","г","д","е","ё","ж","з","и","к","л","м","н","о","п","р","с","т","у","ф","х","ц","ч","ш","щ","ъ","ы","ь","э","ю","я")
 
 lines.blog <- round(getBasicStats(blog.en)[2] * 0.25, 0)
 lines.news <- round(getBasicStats(news.en)[2] * 0.25, 0)
@@ -71,14 +68,14 @@ txt.twit <- getCorpus(twit.en, lines.twit, profanityWords.en)
 txt.en <- c(txt.blog, txt.news, txt.twit)
 
 # Save russian and english corpuses for future using
-save(txt.en, file="data/txt.en.Rda")
+#save(txt.en, file="data/txt.en.Rda")
 #save(txt.ru, file="data/txt.ru.Rda")
-load("data/txt.en.Rda")
+#load("data/txt.en.Rda")
 
 txt <- txt.en
 
 tokens <- tokenize(txt, simplify=FALSE)
-tokens <- removeFeatures(tokens, c(stopwords("english"), "will", "ass", "ill", "id", alphabet.en, profanityWords.en))
+#tokens <- removeFeatures(tokens, c(stopwords("english"), "will", "ass", "ill", "id", alphabet.en, profanityWords.en))
 unigrams <- ngrams(tokens, n=1, skip=0, concatenator = " ")
 bigrams <- ngrams(tokens, n=2, skip=0, concatenator = " ")
 trigrams <- ngrams(tokens, n=3, skip=0, concatenator = " ")
@@ -101,7 +98,7 @@ f5 <- sort(colSums(dfm_penta), decreasing = TRUE)
 
 N <- sum(ntoken(txt)) # corpus size
 V <- length(f1)  # vocabulary size
-save(f1, f2, f3, f4, f5, N, V, file="data/f12345.Rda")
+save(f1, f2, f3, f4, f5, N, V, file="data/f12345_raw.Rda")
 
 #df.one <- data.frame(cbind(names(f1), f1)); names(df.one) <- c("ngram", "freq")
 #df.two <- data.frame(cbind(names(f2), f2)); names(df.two) <- c("ngram", "freq")
