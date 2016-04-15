@@ -1,6 +1,7 @@
 setwd("~/Coursera/DS_Capstone/")
 source("code/final/0_stats_helper.R")
 load(file="data/f12345.Rda")
+load(file="data/f12345raw.Rda")
 load(file="data/f21_22_23_24.Rda")
 
 # fast grep
@@ -93,11 +94,41 @@ try.predict <- function(x,y) {
   print("Post processing, stage 2, checking ")
   len <- round(length(jis$c)*0.1,0)
   t <- jis[1:len,]
-  l <- apply(t,1, function(x) return(paste(x[1],x[2],collapse=" ")))
-  c <- sapply(l, function(x) return( as.numeric( f2[x])))
+  #l <- apply(t,1, function(x) return(paste(x[1],x[2],collapse=" ")))
+  #c <- sapply(l, function(x) return( as.numeric( f2[x])))
   
   
   return(jis) 
 }
+
+
+len <- round(length(jis$c)*0.1,0)
+t <- jis[1:len,]
+l <- as.character( t$last )
+l2 <- sapply(l, function(x) { return ( paste("of", x, collapse = " ") ) })
+t <- f2r[names(f2r) %in% l2]
+t<-t[order(-t)]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
