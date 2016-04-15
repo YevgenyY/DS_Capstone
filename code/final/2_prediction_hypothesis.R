@@ -101,12 +101,12 @@ try.predict <- function(x,y) {
   return(jis) 
 }
 
-
+# Trigram checking - post processing
 len <- round(length(jis$c)*0.1,0)
 t <- jis[1:len,]
 l <- as.character( t$last )
-l2 <- sapply(l, function(x) { return ( paste("of", x, collapse = " ") ) })
-t <- f2r[names(f2r) %in% l2]
+l3 <- sapply(l, function(x) { return ( paste("me the", x, collapse = " ") ) })
+t <- f3r[names(f3r) %in% l3]
 t<-t[order(-t)]
 
 

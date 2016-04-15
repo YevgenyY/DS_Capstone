@@ -81,16 +81,22 @@ tokens <- tokenize(txt, simplify=FALSE)
 unigrams <- ngrams(tokens, n=1, skip=0, concatenator = " ")
 bigrams <- ngrams(tokens, n=2, skip=0, concatenator = " ")
 trigrams <- ngrams(tokens, n=3, skip=0, concatenator = " ")
+quadgrams <- ngrams(tokens, n=4, skip=0, concatenator = " ")
+pentagrams <- ngrams(tokens, n=5, skip=0, concatenator = " ")
 
 dfm_one <- dfm(tokens, groups = NULL) 
 dfm_two <- dfm(bigrams, groups = NULL)
 dfm_tri <- dfm(trigrams, groups = NULL)
+dfm_quad <- dfm(quadgrams, groups = NULL)
+dfm_penta <- dfm(pentagrams, groups = NULL)
 
 # Calculate frequency dictionaries
 f1r <- sort(colSums(dfm_one), decreasing = TRUE)
 f2r <- sort(colSums(dfm_two), decreasing = TRUE)
 f3r <- sort(colSums(dfm_tri), decreasing = TRUE)
+f4r <- sort(colSums(dfm_quad), decreasing = TRUE)
+f5r <- sort(colSums(dfm_penta), decreasing = TRUE)
 
 N <- sum(ntoken(txt)) # corpus size
 V <- length(f1r)  # vocabulary size
-save(f1r, f2r, f3r, N, V, file="data/f12345raw.Rda")
+save(f1r, f2r, f3r, f4r, f5r, N, V, file="data/f12345raw.Rda")
