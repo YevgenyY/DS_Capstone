@@ -4,7 +4,7 @@ setwd("~/Coursera/DS_Capstone/")
 
 profanityWords.en <- names(read.csv(url("http://www.bannedwordlist.com/lists/swearWords.csv")))
 stop_words<- c(stopwords("english"), 
-                 "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","q","p","r","s","t","u","v","w","x","y","z", profanityWords.en)
+                 "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","q","p","r","s","t","u","v","w","x","y","z", "id","ill", profanityWords.en)
 rm(profanityWords.en)
 
 # return word #n-1

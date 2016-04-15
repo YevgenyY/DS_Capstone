@@ -27,8 +27,9 @@ load("data/f21_22_23_24.Rda")
 fg <- function(x, y) {  y[y[,"last"]==x,] }  
 # Try intersect Wi as Wi-1,Wi-2, Wi-3, Wi-4  
 
-full_intersect <- function(x) {
-  coeff <- c(1, 0.1, 0.03, 0.02)
+full_join <- function(x) {
+  #coeff <- c(1, 0.1, 0.001, 0.0001)
+  coeff <- c(1, 0.1, 0.01, 0.001)
   ai1 <- f21[f21$first==x,]; ai1$c <- ai1$c * coeff[1]
   ai2 <- f22[f22$first==x,]; ai2$c <- ai2$c * coeff[2]
   ai3 <- f23[f23$first==x,]; ai3$c <- ai3$c * coeff[3]
@@ -51,9 +52,10 @@ full_intersect <- function(x) {
   all <- rbind(ai1,ai2,ai3,ai4)
   if(length(all$c) > 0) {
     t <- aggregate(c ~ first+last, data=all,FUN=sum); 
-    rm(all)
+    #rm(all)
+    t <- t[order(-t$c),]; rownames(t) <- NULL
   
-    out <- t # t[t$last %in% full_is,]
+    out <- t   # t[t$last %in% full_is,]
     out$c <- out$c / f1[x]
     out <- out[order(-out$c),]
   } else
@@ -62,60 +64,14 @@ full_intersect <- function(x) {
   return( out )
 }
 
-full_join <- function(x) {
-  ai1 <- as.character(f21[f21$first==x,]$last); print(length(ai1))
-  ai2 <- as.character(f22[f22$first==x,]$last); print(length(ai2))
-  ai3 <- as.character(f23[f23$first==x,]$last); print(length(ai3))
-  ai4 <- as.character(f24[f24$first==x,]$last); print(length(ai4))
-  
-  full_join <- unique(c(ai1,ai2,ai3,ai4))
-  
-  print(length(full_join))
-  
-  return(full_join)
-}
-
-try.join.intersect <- function(x,y) {
-  sentence <- tokis(x)
-
-  # joint intersection
-  jis <- c()
-  for (i in 0:4) {
-    w <- sentence[length(sentence)-i]
-    if (i==0) {
-      jis <- full_join(w)
-    } else {
-      t <- full_join(w)
-      jis <- intersect(jis, t)
-    }
-  }
-  for(i in 1:length(y)) {
-    out <- paste(y[i], sum(grepl(y[i], jis)), collapse = ":")
-    print(out)
-  }
-  
-  out <- paste("Join-intersect length", length(jis), collapse = " ")
-  print(out)
-  
-  return(jis)
-}
-
-try.intersect.join <- function(x,y) {
+try.predict <- function(x,y) {
   
   sentence <- tokis(x)
-  #sentence <-sentence [! sentence %in% c("id","ill") ]
-  wi <- sentence[length(sentence)]
-  wi1 <- sentence[length(sentence)-1]
-  wi2 <- sentence[length(sentence)-2]
-  wi3 <- sentence[length(sentence)-3]
-  wi4 <- sentence[length(sentence)-4]
-  paste(wi4,wi3,wi2,wi1,wi, collapse = " ")
-  
   # make intersection and then join the results
   jis <- data.frame()
-  
-  for (i in 0:4) {
-    jis <- rbind(jis,full_intersect(sentence[length(sentence)-i]))
+  j <- length(sentence) - 1
+  for (i in 0:j) {
+    jis <- rbind(jis,full_join(sentence[j-i]))
   }
   
   # summarize the counts
@@ -127,6 +83,8 @@ try.intersect.join <- function(x,y) {
   
   # print the result
   for(i in 1:length(y)) {
+    out <- paste("Processing word", y[i], collapse = " ")
+    print(out)
     t <- fg(y[i], jis)
     if(length(t$c > 0)) {
       print(t)
@@ -171,9 +129,22 @@ try.intersect.join <- function(x,y) {
 
 
 
+for (i in 1:length(a$last)) {
+  bigram <- paste("of", a$last[i], collapse = " ")
+  if(!is.na(f2raw[bigram])) {
+    out <- paste("Rewarding bigram:", bigram, collapse = " ")
+    print(out)
+    a$c[i] <- a$c[i]*f2raw[bigram]
+  }
+}
 
+c <- sapply(a$last, function(x){
+  bigram <- paste("of", x, collapse = " ")
+  return(f2raw[bigram])  
 
+})
 
+a <- a[order(-a$c),]
 
 
 
