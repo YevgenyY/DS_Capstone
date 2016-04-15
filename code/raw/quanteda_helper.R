@@ -75,7 +75,7 @@ txt.en <- c(txt.blog, txt.news, txt.twit)
 txt <- txt.en
 
 tokens <- tokenize(txt, simplify=FALSE)
-tokens <- removeFeatures(tokens, c(stopwords("english"), "will", "ass", "ill", "id", alphabet.en, profanityWords.en))
+#tokens <- removeFeatures(tokens, c(stopwords("english"), "will", "ass", "ill", "id", alphabet.en, profanityWords.en))
 unigrams <- ngrams(tokens, n=1, skip=0, concatenator = " ")
 bigrams <- ngrams(tokens, n=2, skip=0, concatenator = " ")
 trigrams <- ngrams(tokens, n=3, skip=0, concatenator = " ")
