@@ -129,7 +129,7 @@ try.predict <- function(x,y) {
   len <- round(length(jis$c)*0.1,0)
   t <- jis[1:len,]
   l <- apply(t,1, function(x) return(paste(x[1],x[2],collapse=" ")))
-  c <- sapply(l, function(x) return( as.numeric( f2[x])))
+  c <- sapply(l, function(x) return( as.numeric( f2[x]) ))
   
   
   return(jis) 

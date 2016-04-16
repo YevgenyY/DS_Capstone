@@ -72,3 +72,32 @@ except_last_word <- function(x) {
   return(paste(z, collapse = " "))
 }
 
+get_last_word <- function(x) { 
+  stopifnot(is.character (x))
+  stopifnot(length(x) == 1)
+  t <- unlist(strsplit(x, split=" "))
+  return(t[length(t)])
+}
+
+get_ngramm <- function(x, ngram_len) {
+  raw <- gsub("[^[:alnum:][:space:]']", ' ', x)
+  raw <- gsub('[[:digit:]]+', ' ', raw)
+  raw <- gsub('[[:punct:]]+', '', raw)
+  raw <- gsub('[\n]+', '', raw)
+  raw <- tolower(raw)
+  raw <- unlist(strsplit(raw, " "))
+  raw <- raw[raw!=""]
+  
+  out <- c()
+  len <- length(raw)
+  j <- ngram_len-1
+  
+  for (i in j:0) {
+    if (nchar(raw[len - i]) > 0)
+      out <- c(out, raw[len - i])
+  }
+
+  out <- paste(out, collapse = " ")
+  return(out)
+}
+

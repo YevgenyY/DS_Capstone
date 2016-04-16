@@ -30,6 +30,16 @@ full_join <- function(x) {
   return( out )
 }
 
+
+check_ngramm <- function(fNr, words, question, ngram_len) {
+  ngram <- get_ngramm(question, ngram_len) 
+  ngrams_ar <- sapply(words, function(x) { return ( paste(ngram, x, collapse = " ") ) })
+  t <- fNr[names(fNr) %in% ngrams_ar]
+  t<-t[order(-t)]
+  
+  return(t)
+}
+
 try.predict <- function(x,y) {
   
   sentence <- tokis(x)
@@ -84,30 +94,34 @@ try.predict <- function(x,y) {
   out <- paste("The winner: ", win, res[win])
   print(out)
   
-  out <- paste("Full intersect area length:", length(jis$last), collapse = " ")
+  out <- paste("Array length:", length(jis$last), collapse = " ")
   print(out)
   jis <- aggregate(c ~ last, data=jis,FUN=sum); 
   jis <- jis[order(-jis$c),]; rownames(jis)<-NULL
-  out <- paste("Winner index in intersect area is:", rownames(fg(win, jis)))
+  out <- paste("Winner index in the array is:", rownames(fg(win, jis)))
   print(out)
   
-  print("Post processing, stage 2, checking ")
+  print("Post processing, stage 2, checking penta / quad / tri gramms")
+  
   len <- round(length(jis$c)*0.1,0)
   t <- jis[1:len,]
-  #l <- apply(t,1, function(x) return(paste(x[1],x[2],collapse=" ")))
-  #c <- sapply(l, function(x) return( as.numeric( f2[x])))
+  words <- as.character( t$last )
+
+  out <- check_ngramm(f5r, words, x, 4)
+  out <- c(out, check_ngramm(f4r, words, x, 3))
+  out <- c(out, check_ngramm(f3r, words, x, 2))
+
+  t <- sapply(names(out), get_last_word)
+  names(out) <- t
+
+  df <- data.frame(out,names(out))
+  names(df ) <- c("c","word")
+  out <- aggregate(c ~ word, data=df,FUN=sum)
+  out <- out[order(-out$c),]
   
-  
-  return(jis) 
+  return(out$word[1]) 
 }
 
-# Trigram checking - post processing
-len <- round(length(jis$c)*0.1,0)
-t <- jis[1:len,]
-l <- as.character( t$last )
-l3 <- sapply(l, function(x) { return ( paste("me the", x, collapse = " ") ) })
-t <- f3r[names(f3r) %in% l3]
-t<-t[order(-t)]
 
 
 
