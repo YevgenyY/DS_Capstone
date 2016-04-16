@@ -1,6 +1,6 @@
 setwd("~/Coursera/DS_Capstone/")
 source("code/final/0_stats_helper.R")
-load(file="data/f12345.Rda")
+load(file="data/f12.Rda")
 load(file="data/f12345raw.Rda")
 load(file="data/f21_22_23_24.Rda")
 
@@ -29,7 +29,6 @@ full_join <- function(x) {
   
   return( out )
 }
-
 
 check_ngramm <- function(fNr, words, question, ngram_len) {
   ngram <- get_ngramm(question, ngram_len) 
@@ -102,28 +101,47 @@ try.predict <- function(x,y) {
   print(out)
   
   print("Post processing, stage 2, checking penta / quad / tri gramms")
-  
+  coef <- c(10, 5, 1)
   len <- round(length(jis$c)*0.1,0)
   t <- jis[1:len,]
   words <- as.character( t$last )
 
-  out <- check_ngramm(f5r, words, x, 4)
-  out <- c(out, check_ngramm(f4r, words, x, 3))
-  out <- c(out, check_ngramm(f3r, words, x, 2))
+  # Collect ngrams
+  out5 <- check_ngramm(f5r, words, x, 4) * coef[1] 
+  out4 <- check_ngramm(f4r, words, x, 3) * coef[2]
+  out3 <- check_ngramm(f3r, words, x, 2) * coef[3]
+  
+  # Normalize ngrams
+  ngr <- get_ngramm(x, 4); out5 <- out5 / f4r[ngr]
+  ngr <- get_ngramm(x, 3); out4 <- out4 / f3r[ngr]
+  ngr <- get_ngramm(x, 2); out3 <- out3 / f2r[ngr]
+  
+  out <- c(out5, out4, out3)
 
   t <- sapply(names(out), get_last_word)
   names(out) <- t
 
   df <- data.frame(out,names(out))
-  names(df ) <- c("c","word")
-  out <- aggregate(c ~ word, data=df,FUN=sum)
+  names(df ) <- c("c","last")
+  out <- aggregate(c ~ last, data=df,FUN=sum)
   out <- out[order(-out$c),]
+  rownames(out) <- NULL
+  out$word <- as.character(out$word)
   
-  return(out$word[1]) 
+  out$c <- out$c/sum(out$c)
+  head(out)
+  head(jis)
+
+  out$last <- as.character(out$last)
+  for( i in 1:length(out$c) ) {
+    out[i, "c"] <- out[i, "c"] + fg(out$last[i], jis)$c
+  }
+  
+  t <- out[order(-out$c),]; rownames(t) <- NULL
+  head(t,10)  
+  
+  return(t) 
 }
-
-
-
 
 
 
