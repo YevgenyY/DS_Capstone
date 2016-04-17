@@ -126,12 +126,13 @@ try.predict <- function(x,y) {
   out <- aggregate(c ~ last, data=df,FUN=sum)
   out <- out[order(-out$c),]
   rownames(out) <- NULL
-  out$word <- as.character(out$word)
+  out$last <- as.character(out$last)
   
   out$c <- out$c/sum(out$c)
   head(out)
   head(jis)
 
+  # Calculate P
   out$last <- as.character(out$last)
   for( i in 1:length(out$c) ) {
     out[i, "c"] <- out[i, "c"] + fg(out$last[i], jis)$c
@@ -140,7 +141,7 @@ try.predict <- function(x,y) {
   t <- out[order(-out$c),]; rownames(t) <- NULL
   head(t,10)  
   
-  return(t) 
+  return(head(t,10)) 
 }
 
 
