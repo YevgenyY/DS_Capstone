@@ -49,7 +49,7 @@ txt <- c(txt.blog, txt.news, txt.twit)
 
 # Extract tokens
 tokens <- tokenize(txt, simplify=FALSE)
-tokens <- removeFeatures(tokens, c(stopwords("english"), "will", "ass", "ill", "id", alphabet.en, profanityWords.en))
+#tokens <- removeFeatures(tokens, c(stopwords("english"), "will", "ass", "ill", "id", alphabet.en, profanityWords.en))
 unigrams <- ngrams(tokens, n=1, skip=0, concatenator = " ")
 bigrams <- ngrams(tokens, n=2, skip=0, concatenator = " ")
 trigrams <- ngrams(tokens, n=3, skip=0, concatenator = " ")
@@ -73,7 +73,7 @@ N <- sum(ntoken(txt)) # corpus size
 V <- length(f1)  # vocabulary size
 
 # Save all
-save(f1, f2, f3, f4, f5, N, V, file="data/f12345.Rda")
+save(f1, f2, f3, f4, f5, N, V, file="data/f12345raw.Rda")
 
 # Make tokens with stopwords
 txt <- txt.en
