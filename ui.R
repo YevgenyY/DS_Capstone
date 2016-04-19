@@ -1,4 +1,5 @@
 library(shiny)
+
 shinyUI(fluidPage(
   titlePanel("Word prediction algorithm demo"),
   fluidRow(

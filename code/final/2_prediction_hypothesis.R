@@ -1,8 +1,8 @@
 setwd("~/Coursera/DS_Capstone/")
 source("code/final/0_stats_helper.R")
-load(file="data/f12.Rda")
-load(file="data/f12345raw.Rda")
-load(file="data/f21_22_23_24.Rda")
+#load(file="data/f12.Rda")
+#load(file="data/f12345raw.Rda")
+#load(file="data/f21_22_23_24.Rda")
 
 # fast grep
 fg <- function(x, y) {  y[y[,"last"]==x,] }  
