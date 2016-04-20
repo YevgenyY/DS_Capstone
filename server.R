@@ -1,13 +1,13 @@
 library(shiny)
-
+setwd("~/Coursera/DS_Capstone/")
 load(file="data/f12.Rda")
 load(file="data/f12345raw.Rda")
 load(file="data/f21_22_23_24.Rda")
+source("code/final/0_stats_helper.R")
 
 # fast grep
 fg <- function(x, y) {  y[y[,"last"]==x,] }  
 
-# Generate and join bigrams
 full_join <- function(x) {
   coeff <- c(1, 0.1, 0.05, 0.001)
   ai1 <- f21[f21$first==x,]; ai1$c <- ai1$c * coeff[1]
@@ -40,7 +40,6 @@ check_ngramm <- function(fNr, words, question, ngram_len) {
   return(t)
 }
 
-
 try.predict <- function(x) {
   
   sentence <- tokis(x)
@@ -52,18 +51,13 @@ try.predict <- function(x) {
   }
   
   # summarize the counts
-  jis <- aggregate(c ~ first+last, data=jis,FUN=sum);
-  jis <- jis[order(-jis$c),]
-  rownames(jis) <- NULL
+  #jis <- aggregate(c ~ first+last, data=jis,FUN=sum);
+  #jis <- jis[order(-jis$c),]
+  #rownames(jis) <- NULL
 
-  out <- paste("Array length:", length(jis$last), collapse = " ")
-  print(out)
   jis <- aggregate(c ~ last, data=jis,FUN=sum); 
   jis <- jis[order(-jis$c),]; rownames(jis)<-NULL
-  out <- paste("Winner index in the array is:", rownames(fg(win, jis)))
-  print(out)
-  
-  print("Post processing, stage 2, checking penta / quad / tri gramms")
+
   coef <- c(10, 5, 1)
   len <- round(length(jis$c)*0.1,0)
   t <- jis[1:len,]
@@ -102,15 +96,17 @@ try.predict <- function(x) {
   }
   
   t <- out[order(-out$c),]; rownames(t) <- NULL
-  head(t,10)  
-  
-  return(t$last[1]) 
+
+  return(t) 
 }
+
+############### Shiny Server ###################
 
 shinyServer(
   function(input, output) {
     output$out_sentence <- renderText({input$input_text})
-    output$out_word_predicted <- renderText({paste("input text is:", input$input_text)})
+    predicted_word <- try.predict(input$input_text)
+    output$out_word_predicted <- renderText({paste("Predicted word is:", predicted_word)})
   }
 )
 
