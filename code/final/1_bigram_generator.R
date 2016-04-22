@@ -1,6 +1,6 @@
 setwd("~/Coursera/DS_Capstone/")
 source("code/final/0_stats_helper.R")
-load(file="data/f12345.Rda")
+#load(file="data/f12345.Rda")
 
 ###### Prepare new bigrams for prediction
 # f21 - (wi-1,wi) = f2

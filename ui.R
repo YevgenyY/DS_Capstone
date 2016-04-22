@@ -3,8 +3,8 @@ library(shiny)
 shinyUI(fluidPage(
   titlePanel("Word prediction algorithm demo"),
   fluidRow(
-    column(3, wellPanel(
-      textInput("input_text", "Query", "Your sentence here..."),
+    column(6, wellPanel(
+      textInput("input_text", "Query", "The guy in front of me just bought a pound of bacon, a bouquet, and a case of"),
       submitButton("Submit")
     )
   )),

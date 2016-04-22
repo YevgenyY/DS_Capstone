@@ -1,9 +1,7 @@
 library(shiny)
 setwd("~/Coursera/DS_Capstone/")
-load(file="data/f12.Rda")
-load(file="data/f12345raw.Rda")
-load(file="data/f21_22_23_24.Rda")
 source("code/final/0_stats_helper.R")
+load(file="data/shiny_data.Rda")
 
 # fast grep
 fg <- function(x, y) {  y[y[,"last"]==x,] }  
@@ -40,73 +38,77 @@ check_ngramm <- function(fNr, words, question, ngram_len) {
   return(t)
 }
 
-try.predict <- function(x) {
-  
-  sentence <- tokis(x)
-  # join generated bigrams
-  jis <- data.frame()
-  j <- length(sentence) - 1
-  for (i in 0:j) {
-    jis <- rbind(jis,full_join(sentence[j-i]))
-  }
-  
-  # summarize the counts
-  #jis <- aggregate(c ~ first+last, data=jis,FUN=sum);
-  #jis <- jis[order(-jis$c),]
-  #rownames(jis) <- NULL
-
-  jis <- aggregate(c ~ last, data=jis,FUN=sum); 
-  jis <- jis[order(-jis$c),]; rownames(jis)<-NULL
-
-  coef <- c(10, 5, 1)
-  len <- round(length(jis$c)*0.1,0)
-  t <- jis[1:len,]
-  words <- as.character( t$last )
-  
-  # Collect ngrams
-  out5 <- check_ngramm(f5r, words, x, 4) * coef[1] 
-  out4 <- check_ngramm(f4r, words, x, 3) * coef[2]
-  out3 <- check_ngramm(f3r, words, x, 2) * coef[3]
-  
-  # Normalize ngrams
-  ngr <- get_ngramm(x, 4); out5 <- out5 / f4r[ngr]
-  ngr <- get_ngramm(x, 3); out4 <- out4 / f3r[ngr]
-  ngr <- get_ngramm(x, 2); out3 <- out3 / f2r[ngr]
-  
-  out <- c(out5, out4, out3)
-  
-  t <- sapply(names(out), get_last_word)
-  names(out) <- t
-  
-  df <- data.frame(out,names(out))
-  names(df ) <- c("c","last")
-  out <- aggregate(c ~ last, data=df,FUN=sum)
-  out <- out[order(-out$c),]
-  rownames(out) <- NULL
-  out$last <- as.character(out$last)
-  
-  out$c <- out$c/sum(out$c)
-  head(out)
-  head(jis)
-  
-  # Calculate P
-  out$last <- as.character(out$last)
-  for( i in 1:length(out$c) ) {
-    out[i, "c"] <- out[i, "c"] + fg(out$last[i], jis)$c
-  }
-  
-  t <- out[order(-out$c),]; rownames(t) <- NULL
-
-  return(t) 
-}
-
 ############### Shiny Server ###################
 
 shinyServer(
   function(input, output) {
-    output$out_sentence <- renderText({input$input_text})
-    predicted_word <- try.predict(input$input_text)
-    output$out_word_predicted <- renderText({paste("Predicted word is:", predicted_word)})
+    #my.test <- reactive( {
+    #  return(paste(input$input_text, collapse = " "))
+    #} )
+
+    try.predict <- reactive({
+      
+      x <- input$input_text
+      sentence <- tokis(x)
+      # join generated bigrams
+      jis <- data.frame()
+      j <- length(sentence) - 1
+      for (i in 0:j) {
+        jis <- rbind(jis,full_join(sentence[j-i]))
+      }
+      
+      # summarize the counts
+      #jis <- aggregate(c ~ first+last, data=jis,FUN=sum);
+      #jis <- jis[order(-jis$c),]
+      #rownames(jis) <- NULL
+      
+      jis <- aggregate(c ~ last, data=jis,FUN=sum); 
+      jis <- jis[order(-jis$c),]; rownames(jis)<-NULL
+      
+      coef <- c(10, 5, 1)
+      len <- round(length(jis$c)*0.1,0)
+      t <- jis[1:len,]
+      words <- as.character( t$last )
+      
+      # Collect ngrams
+      out5 <- check_ngramm(f5r, words, x, 4) * coef[1] 
+      out4 <- check_ngramm(f4r, words, x, 3) * coef[2]
+      out3 <- check_ngramm(f3r, words, x, 2) * coef[3]
+      
+      # Normalize ngrams
+      ngr <- get_ngramm(x, 4); out5 <- out5 / f4r[ngr]
+      ngr <- get_ngramm(x, 3); out4 <- out4 / f3r[ngr]
+      ngr <- get_ngramm(x, 2); out3 <- out3 / f2r[ngr]
+      
+      out <- c(out5, out4, out3)
+      
+      t <- sapply(names(out), get_last_word)
+      names(out) <- t
+      
+      df <- data.frame(out,names(out))
+      names(df ) <- c("c","last")
+      out <- aggregate(c ~ last, data=df,FUN=sum)
+      out <- out[order(-out$c),]
+      rownames(out) <- NULL
+      out$last <- as.character(out$last)
+      
+      out$c <- out$c/sum(out$c)
+      head(out)
+      head(jis)
+      
+      # Calculate P
+      out$last <- as.character(out$last)
+      for( i in 1:length(out$c) ) {
+        out[i, "c"] <- out[i, "c"] + fg(out$last[i], jis)$c
+      }
+      
+      t <- out[order(-out$c),]; rownames(t) <- NULL
+      
+      return(paste(t$last[1:10], collapse = "\n")) 
+    })
+        
+    output$out_word_predicted <- renderText( try.predict() )       
+    output$out_sentence <- renderText(input$input_text)  
   }
 )
 
