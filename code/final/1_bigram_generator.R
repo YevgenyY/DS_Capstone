@@ -46,3 +46,14 @@ t <- aggregate(c ~ first+last, data=f23,FUN=sum); f23 <- t[order(-t$c),]
 t <- aggregate(c ~ first+last, data=f24,FUN=sum); f24 <- t[order(-t$c),]
 
 save(f21,f22,f23,f24, file="data/f21_22_23_24.Rda")
+save(f1,f2,f1r,f2r,f3r,f4r,f5r,f21,f22,f23,f24,file="data/shiny_data.Rda")
+
+getsize <- function(x) {
+  object.size(x)/1024/1024
+}
+
+all_size <- getsize(f1) + getsize(f2) + getsize(f1r) + getsize(f2r) + getsize(f3r) + getsize(f21) + getsize(f22) + getsize(f23)
+all_size
+
+
+

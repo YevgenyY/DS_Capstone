@@ -1,4 +1,4 @@
-library(quanteda)
+#library(quanteda)
 options(warn=-1)
 
 setwd("~/Coursera/DS_Capstone/")

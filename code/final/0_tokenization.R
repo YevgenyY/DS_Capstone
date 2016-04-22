@@ -37,9 +37,9 @@ news.en="data/final/en_US/en_US.news.txt"
 twit.en="data/final/en_US/en_US.twitter.txt"
 
 # Calculate lines to read for the corpus
-lines.blog <- round(getBasicStats(blog.en)[2] * 0.16, 0)
-lines.news <- round(getBasicStats(news.en)[2] * 0.16, 0)
-lines.twit <- round(getBasicStats(twit.en)[2] * 0.16, 0)
+lines.blog <- round(getBasicStats(blog.en)[2] * 0.1, 0)
+lines.news <- round(getBasicStats(news.en)[2] * 0.1, 0)
+lines.twit <- round(getBasicStats(twit.en)[2] * 0.1, 0)
 
 # Read lines for the corpus
 txt.blog <- getCorpus(blog.en, lines.blog, stop_words)
